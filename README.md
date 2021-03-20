@@ -6,7 +6,7 @@ These scripts are supposed to help understanding and reproducing the results we 
 
 List of files
 
-*** goglobalfit.py ***
+*** goglobalfit.py ***\n
 Main file to perform the global fitting process. The file is divided in sections to allow stepwise
 execution of each stage.
 *** hkimports2.py ***

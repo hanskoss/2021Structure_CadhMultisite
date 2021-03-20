@@ -1,0 +1,12 @@
+B0 500.13
+B1 50.677733
+NS 48
+temp 288.5
+press 0
+conc 2.475
+sample C1
+TR T
+nucleus N
+RG 2048
+tSL 50000
+SLHz 2.5

@@ -1,0 +1,1 @@
+to freq list manually added a line 0 to the beginning - which is a reference slice which was forgotten. remove very last frequency. execute process with 1 0 flag to remove first slice after processing.

@@ -75,14 +75,11 @@ def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namr
 #%%
 
 """
-Step 1:"Fitting of data using very wide ranges of parameter boundaries.
-Established initial parameters used in Step 2."
-Step 2: "More restricted boundaries (including deltaO), very similar to step 3."
-Step 3: "Based on the results from Step 2, boundaries were restricted a little
-more"
-The following section shows how step 3 is executed. The only difference to
-step 2 is pointed out. Step 1 was similar, but hardly any boundaries,
-also excluding deltaO boundaries.
+Stage 1:"Fitting of data using very wide ranges of parameter boundaries.
+Established initial parameters used in Stage 2."
+Stage 2: "More restricted boundaries, very similar to stage 3."
+The following section shows how stage 2 is executed. The only difference to
+stage 1 is pointed out.
 """
 
 """ select residues to be fitted; define delta O boundaries, for each residue
@@ -115,7 +112,7 @@ DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000, 26000], [-13000, 13000]],\
     steps each. The property axes for all residues are created. The property
     axes are important to define and describe parameters, as outlined elsewhere
     and in the paper.
-    Note: For step 3 in the paper, this multi-run was split into three (S, T, U)"""
+    Note: For stage 2 in the paper, this multi-run was split into three (S, T, U)"""
 namresults='multix13_NEW_pfr_U2_'
 conditions=[0,[3,3,3,1,1]]
 PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
@@ -123,21 +120,21 @@ PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
              if y in pickthese])
 
 """Based on the defined property axes, parameter sets with certain boundaries
-    are created. The first (commented out) set belongs to step 2, the other
-    to step 3"""
+    are created. The first (commented out) set belongs to stage 1, the other
+    to stage 2"""
 #ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\     run N
 #    (DeltaOmegaParametersBoundaries) if y in pickthese],1,10000,100,900,1,2,0.005,0.5)
 ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\
     (DeltaOmegaParametersBoundaries) if y in pickthese],1000,8000,100,900,1,2,0.005,0.1)
 
-"""compile setting and start global fit (step 3): 5 x 20 parallel calculations."""
+"""compile setting and start global fit (stage 3a): 5 x 20 parallel calculations."""
 setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults,0]
 mainfuncts.parallelmultifit4(setparameters3,5,20,ParameterColl,PropAxesColl)
 
 
 #%%
 """
-combine results form the step 3 calculations, gives 100 runs, with 3 attempts
+combine results form the stage 3a calculations, gives 100 runs, with 3 attempts
 each"   
 """
 reslalmall=[reslall[i] for i in pickthese]
@@ -159,7 +156,7 @@ allsetcoll=allsetcoll1+allsetcoll2+allsetcoll3
 """
 from the 100 runs, the results of the last step from each of the three 
 precalculation attempts is collected. The best 100 (lowest cost) of the 300
-collected results are then selected to continue the fit (step 4), with 10
+collected results are then selected to continue the fit (stage 3b), with 10
 documented steps of 5 undocumented fitting substeps.
 """
 

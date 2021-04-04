@@ -249,36 +249,37 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
             for i in zip(par1,boundsl,boundsh):
                if i[0] <= i[1] or i[0] >= i[2]:
                    print 'problem!', i[0], i[1], i[2]
-        try:
-            for k in np.arange(precalcatt):
-                if evalmode ==1:
-                    for i in zip(par1,boundsl,boundsh):
-                        print i[0],i[1],i[2]
-             #   print par1,par2, par3, par6, par7, errvalpar, gpar, fl
-           #     print 'here'
-            #    print gpar, 'gparold'
-                gparn=[]
-                for ggg in gpar:
-                    gparn.append(list([gggg+1000 for gggg in ggg]))
-                #gpar=np.array([ggg+1000 for ggg in gpar])
-             #   print gparn, 'gparnew'
-                res=optimize.least_squares(errfunctg3,par1,max_nfev=precalclen,\
-                    bounds=(boundsl,boundsh),args=(par2,par3,par6,par7,\
-                    errvalpar,gparn,fl),method='trf',jac='3-point',x_scale='jac') #,
-                par1=res.x
-                print 'attempt ', u, ' precalculation step ', u, k, par1,res.cost,filenamsav
-                allrescoll.append(res)
-                print allrescoll[-1].cost, 'cost', res.cost
-                hkio.savstatus2b(filenamsav,resnam,poscoll,allrescoll,allconditions)
-        except:
-            print 'well this one didnt work'
+        if precalcatt > 0:
+            try:
+                for k in np.arange(precalcatt):
+                    if evalmode ==1:
+                        for i in zip(par1,boundsl,boundsh):
+                            print i[0],i[1],i[2]
+                 #   print par1,par2, par3, par6, par7, errvalpar, gpar, fl
+               #     print 'here'
+                #    print gpar, 'gparold'
+                    gparn=[]
+                    for ggg in gpar:
+                        gparn.append(list([gggg+1000 for gggg in ggg]))
+                    #gpar=np.array([ggg+1000 for ggg in gpar])
+                 #   print gparn, 'gparnew'
+                    res=optimize.least_squares(errfunctg3,par1,max_nfev=precalclen,\
+                        bounds=(boundsl,boundsh),args=(par2,par3,par6,par7,\
+                        errvalpar,gparn,fl),method='trf',jac='3-point',x_scale='jac') #,
+                    par1=res.x
+                    print 'attempt ', u, ' precalculation step ', u, k, par1,res.cost,filenamsav
+                    allrescoll.append(res)
+                    print allrescoll[-1].cost, 'cost', res.cost
+                    hkio.savstatus2b(filenamsav,resnam,poscoll,allrescoll,allconditions)
+            except:
+                print 'well this one didnt work'
         par1coll.append(res.x)
         costcoll.append(res.cost)
-
-    try:
-        par1=par1coll[np.argmin(costcoll)]
-    except:
-        print "unfeasable result"
+    if precalcatt > 0:
+        try:
+            par1=par1coll[np.argmin(costcoll)]
+        except:
+            print "unfeasable result"
 #    try:
     for k in np.arange(maincalcatt):
         res=optimize.least_squares(errfunctg3,par1,max_nfev=maincalclen,\
@@ -302,6 +303,9 @@ def reshuffle(ss,reslalmall,shuffletype):
     """ Resampling for error calculation by adding or subtracting residuals
     from calculated experimental data.
     """
+    signrnd=1
+    heteroskedacity=1
+    withoutreplacement=0
     allresid={}
     alldsref={}
     dplcoll=[]
@@ -324,12 +328,29 @@ def reshuffle(ss,reslalmall,shuffletype):
                 dsref[dt]=[]
          #   setparameters2=[dataname,'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/',[selnam],conditions,namresults]
             for ds in spinsyst.datasets:
+                
+                if signrnd != 1:
+                    signrnd=np.random.choice([-1,1],size=len(ds.fit))
                 if ds.datatype == 'cpmg':
-                    ds.resid=np.random.choice([-1,1],size=len(ds.fit))*(ds.rcpmg-ds.fit)
+                    if heteroskedacity == 1:
+                        errlist=np.array([np.sqrt(np.average(np.array(xx)**2)) for xx in ds.rcpmgerr])
+                    else:
+                        errlist=1
+                    ds.resid=signrnd*(ds.rcpmg-ds.fit)/errlist
                 elif ds.datatype == 'cest':
-                    ds.resid=np.random.choice([-1,1],size=len(ds.fit))*(ds.y-ds.fit)
+                    if heteroskedacity == 1:
+                        errlist=(ds.ymax-ds.ymin)/2
+                    else:
+                        errlist=1
+                    ds.resid=signrnd*(ds.y-ds.fit)/errlist
                 elif ds.datatype == 'Rex':
-                    ds.resid=np.random.choice([-1,1],size=len(ds.fit))*(ds.yval-ds.fit)
+                    if heteroskedacity == 1:
+                        errlist=[np.average([ds.yerr1,ds.yerr2]),np.average([ds.yerr1,ds.yerr2])]
+                    else:
+                        errlist=1
+                    ds.resid=signrnd*(ds.yval-ds.fit)/np.array(errlist)
+             #   print ds.resid
+             #   print np.average(ds.resid), np.std(ds.resid)
                 dsref[ds.datatype].append(ds.setselect)
                 resid[ds.datatype].append(ds.resid)
             for dt in datatypes:
@@ -339,7 +360,6 @@ def reshuffle(ss,reslalmall,shuffletype):
     
     dspool={}
     sspool={}
-    
     """for each data point, a random residual from a set of eligible residuals
     is selected. This ways, the residuals for a certain group of data points
     are mixed (with replacement).
@@ -356,14 +376,16 @@ def reshuffle(ss,reslalmall,shuffletype):
         dspool[dt]=[[] for i in np.arange(dsnum+1)]
         sspool[dt]=[]
         for xx,x in enumerate(allresid[dt]):
+            
             for z,y in enumerate(x):
-                dspool[dt][alldsref[dt][xx][z]].append(y)
+                if 'y' != []:
+                    dspool[dt][alldsref[dt][xx][z]].append(y)
             sspool[dt].append(flatten(x))
         dspool[dt]=[flatten(i) for i in dspool[dt]]
         for q,x in enumerate(allresid[dt]):
             for z,y in enumerate(x):
                 if method == 'dataset':
-                    pool=dspool[dt][z]
+                    pool=dspool[dt][alldsref[dt][q][z]]
                 elif method == 'spinsyst':
                     pool=sspool[dt][q]
                 elif method == 'any':
@@ -372,8 +394,19 @@ def reshuffle(ss,reslalmall,shuffletype):
                     pool=allresid[dt][q][z]
                 np.random.seed()
                 if pool != []:
-                    chosenwere=np.random.randint(len(pool),size=len(allresid[dt][q][z]))
-                    allresid[dt][q][z]=np.array([pool[i] for i in chosenwere])
+                    
+                    if withoutreplacement == 0:
+                        """with replacement works always"""
+                        chosenwere=np.random.randint(len(pool),size=len(allresid[dt][q][z]))
+                        """without replacement is not implemented for the 'any' method at this time."""
+                    else:
+                        chosenwere=np.random.choice(np.arange(len(pool)),size=len(allresid[dt][q][z]),replace=False)
+                        allresid[dt][q][z]=np.array([pool[i] for i in chosenwere])
+                        for delthis in np.sort(chosenwere)[::-1]:
+                            try:
+                                del(pool[delthis])
+                            except:
+                                np.delete(pool,delthis)
     
     #z=0
     """calculate resampled data points, used as experimental data for error
@@ -386,11 +419,19 @@ def reshuffle(ss,reslalmall,shuffletype):
                 z=0
                 for dsn,ds in enumerate(spinsyst.datasets):
                     if ds.datatype == dt:
-                        ss[ssn].datasets[dsn].reshufy=ds.fit+allresid[dt][q][z]
+                        if heteroskedacity == 1:
+                            
+                            if ds.datatype == 'cpmg':
+                                errlist=np.array([np.sqrt(np.average(np.array(xx)**2)) for xx in ds.rcpmgerr])
+                            elif ds.datatype == 'cest':
+                                errlist=(ds.ymax-ds.ymin)/2
+                            elif ds.datatype == 'Rex':
+                                errlist=np.array([np.average([ds.yerr1,ds.yerr2]),np.average([ds.yerr1,ds.yerr2])])
+                        else:
+                            errlist = 1
+                        ss[ssn].datasets[dsn].reshufy=ds.fit+allresid[dt][q][z]*errlist
                         if ds.datatype == 'Rex':
-                            ss[ssn].datasets[dsn].reshufy=[ss[ssn].\
-                            datasets[dsn].reshufy[0] for i in np.arange(\
-                            len(ss[ssn].datasets[dsn].reshufy))]
+                            ss[ssn].datasets[dsn].reshufy=[ss[ssn].datasets[dsn].reshufy[0] for i in np.arange(len(ss[ssn].datasets[dsn].reshufy))]
                         z+=1
                 q+=1
     return ss

@@ -11,10 +11,8 @@ from hkimports2 import np
 from hkimports2 import datetime
 from hkimports2 import pickle
 from hkimports2 import flatten
-linuxss='/home/hanskoss/scripts/relaxproc/savstat'
-windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
-savstatdir=linuxss#windowsss
-def savstatus2(name,comment1,comment2,datver,scriptver,precalc,resnam,poscoll,resultcoll,setparameters,allsets,dataset):
+#savstatdir=windowsss
+def savstatus2(savstatdir,name,comment1,comment2,datver,scriptver,precalc,resnam,poscoll,resultcoll,setparameters,allsets,dataset):
     status={}
     cwdx=os.getcwd()
     os.chdir(savstatdir)
@@ -36,7 +34,7 @@ def savstatus2(name,comment1,comment2,datver,scriptver,precalc,resnam,poscoll,re
     os.chdir(cwdx)
     return status
 
-def savstatus2b(name,resnam,poscoll,allsets,allconditions):
+def savstatus2b(savstatdir,name,resnam,poscoll,allsets,allconditions):
     status={}
     cwdx=os.getcwd()
     os.chdir(savstatdir)
@@ -54,13 +52,13 @@ def savstatus2b(name,resnam,poscoll,allsets,allconditions):
     os.chdir(cwdx)
     return status
 
-def savss(spinsystems,name):
+def savss(savstatdir,spinsystems,name):
     cwdx=os.getcwd()
     os.chdir(savstatdir)
     save_obj(spinsystems, name+'_ss.dat')
     os.chdir(cwdx)
 
-def loadss(name):
+def loadss(savstatdir,name):
     cwdx=os.getcwd()
     os.chdir(savstatdir)
     ss=load_obj(name+'_ss.dat')
@@ -77,7 +75,7 @@ def load_obj(name):
         loaded_obj = pickle.load(f)
     return loaded_obj
 
-def loadstatus2(name):
+def loadstatus2(savstatdir,name):
     status={}
     cwdx=os.getcwd()
     os.chdir(savstatdir)#'/home/hanskoss/scripts/relaxproc/savstat')
@@ -90,7 +88,7 @@ def loadstatus2(name):
     alls=status['allsets']
     return status['name'],status['resnam'],status['poscoll'],alls,cond
 
-def loadeverything(filenames,fieldnumber,**kwargs):
+def loadeverything(savstatdir,filenames,fieldnumber,**kwargs):
     keylist=[key for key, value in kwargs.items()]
     valuelist=[value for key, value in kwargs.items()]
     if "progcycle" in keylist:
@@ -107,7 +105,7 @@ def loadeverything(filenames,fieldnumber,**kwargs):
     for filename in filenames:
         for selproc in sellist:
             try:
-                name,resnamx,poscollx,allsets,cond=loadstatus2(filename+str(selproc)+'_part')
+                name,resnamx,poscollx,allsets,cond=loadstatus2(savstatdir,filename+str(selproc)+'_part')
                 resultcoll.append(allsets[pp])
                 allsetcoll.append(allsets)
                 if len(allsets) > explen:

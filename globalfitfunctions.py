@@ -10,16 +10,16 @@ from hkimports2 import np
 from hkimports2 import optimize
 from hkimports2 import time
 from hkimports2 import os
-from hkimports2 import scipyexpm
+#from hkimports2 import scipyexpm
 import preprocessing as prepro    #used preprocess - passdatatofit previously
 import iofunctions as hkio
 import RDmath as hkRDmath
-
+#print 1
 
 #[  2.76800000e-03  -1.47694090e+03   2.07130011e-01   8.57390488e+00]
-linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
-windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
-path2020=linux#windows
+#linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
+#windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
+#path2020=windows#linux#windows
 
 def multifunctg2(params,x,m,dwbset,g):
     """performs fitting for a variety of relaxation dispersion
@@ -96,10 +96,10 @@ def multifunctg2(params,x,m,dwbset,g):
         dwx=params[5]
         dcx=params[6]
         for b,a in enumerate(tx):
-        """R1 has a very small influence on the CEST calculation. We have
-        simulated an average R1 for the C11 monomer at 700 and 800 MHz
-        which is selected here.
-        """
+            """R1 has a very small influence on the CEST calculation. We have
+            simulated an average R1 for the C11 monomer at 700 and 800 MHz
+            which is selected here.
+            """
             if m[b] < 0.15:
                 r1set=0.966
             else:
@@ -270,7 +270,7 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
                     print 'attempt ', u, ' precalculation step ', u, k, par1,res.cost,filenamsav
                     allrescoll.append(res)
                     print allrescoll[-1].cost, 'cost', res.cost
-                    hkio.savstatus2b(filenamsav,resnam,poscoll,allrescoll,allconditions)
+                    hkio.savstatus2b(savstatdir,filenamsav,resnam,poscoll,allrescoll,allconditions)
             except:
                 print 'well this one didnt work'
         par1coll.append(res.x)
@@ -286,7 +286,7 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
             bounds=(boundsl,boundsh),args=(par2,par3,par6,par7,errvalpar,gpar,\
             fl),method='trf',jac='3-point',x_scale='jac')
         allrescoll.append(res)
-        hkio.savstatus2b(filenamsav,resnam,poscoll,allrescoll,allconditions)
+        hkio.savstatus2b(savstatdir,filenamsav,resnam,poscoll,allrescoll,allconditions)
         par1=res.x
             
         print allrescoll[-1].cost, 'costx'
@@ -436,7 +436,7 @@ def reshuffle(ss,reslalmall,shuffletype):
                 q+=1
     return ss
 
-def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,files,filenamsav,paramsx,drawonly,cond):
+def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir,files,filenamsav,paramsx,drawonly,cond):
     """ This function prepares the global fit and converts data structures where
     appropriate.
     input arguments:
@@ -451,7 +451,7 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,files,filenamsav,pa
 
     moreconditions=[ctd,selresidues,precalc,resnam,files]
     if precalc != 0 and precalc != 1:
-        spinsystems=hkio.loadss(precalc)
+        spinsystems=hkio.loadss(savstatdir,precalc)
         reslalmall=selresidues[0]#[reslall[i] for i in pickthese]
         shuffletype=[['cpmg','dataset'],['Rex','dataset'],['cest','each']]
         spinsystems=reshuffle(spinsystems,reslalmall,shuffletype)
@@ -558,20 +558,20 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,files,filenamsav,pa
         return spinsystems#else:
 
 
-def parallelfit3(setparameters3,runnum,paramsx,praxis):
+def parallelfit3(path2020,savstatdir,setparameters3,runnum,paramsx,praxis):
     time.sleep(runnum/10)
     databasis,datapath,selresidues,conditions,filenamsav,precalc2=setparameters3
     os.chdir(datapath)
     resultcoll=[];poscoll=[];resnam=[]#;precalc2=[]
     resultcoll, resnam, poscoll, dataset,allsets = runfit4(praxis,[],\
-    selresidues,precalc2,resnam,conditions,databasis,filenamsav+str(runnum),paramsx,0,0)
+    selresidues,precalc2,resnam,conditions,path2020,savstatdir,databasis,filenamsav+str(runnum),paramsx,0,0)
     comment1='fitengines1_1';comment2='x';datver='x';scriptver='x'
-    hkio.savstatus2(filenamsav+str(runnum),comment1,comment2,datver,scriptver,precalc2,resnam,poscoll,resultcoll,setparameters3,allsets,dataset)
+    hkio.savstatus2(savstatdir,filenamsav+str(runnum),comment1,comment2,datver,scriptver,precalc2,resnam,poscoll,resultcoll,setparameters3,allsets,dataset)
     allsav=[filenamsav,comment1,comment2,datver,scriptver,precalc2,resnam,poscoll,resultcoll,setparameters3,allsets,dataset]
     return allsav
 
 
-def evaluaterdfit(praxs1,setparameters2,runnum,paramsx,precalc2):
+def evaluaterdfit(path2020,savstatdir,praxs1,setparameters2,runnum,paramsx,precalc2):
     """Reads in an experimental data set and recalculates the theoretical
     result from provided parameters. This theoretical result is obtained alongside
     chi square (which is printed during the process for inspection).
@@ -584,8 +584,8 @@ def evaluaterdfit(praxs1,setparameters2,runnum,paramsx,precalc2):
     resnam=[]
     temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9,temp10,temp11\
     ,temp12,temp13,temp14,temp15,temp16,temp17,temp18,cond=hkio.\
-    loadeverything([filenamsav],0,decoupl=0)
-    ss=runfit4(praxs1,[],selresidues,precalc2,resnam,conditions,\
+    loadeverything(savstatdir,[filenamsav],0,decoupl=0)
+    ss=runfit4(praxs1,[],selresidues,precalc2,resnam,conditions,path2020,savstatdir,\
     databasis,filenamsav+str(runnum),paramsx,1,cond)
     return ss
     #return spinsystems,fittedcurve

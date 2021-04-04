@@ -7,6 +7,7 @@ from hkimports2 import smp
 from hkimports2 import np
 from hkimports2 import scp
 from hkimports2 import scplin
+from hkimports2 import scipyexpm
 
 smp.init_printing(pretty_print=True,num_columns=150)
 def anyisnotsymbol(listx,eq0):
@@ -85,8 +86,8 @@ def approxdefs(**kwargs):
         ['tt'];k12=prm['k12'];k13=prm['k13'];k14=prm['k14'];k23=prm['k23'];\
         k24=prm['k24'];k34=prm['k34'];dwb=prm['dwb'];dwc=prm['dwc'];dwd=prm\
         ['dwd'];calctype=prm['calctype'];exporder=prm['exporder'];mode=prm\
-        ['mode'];pade=prm['pade'];sc=prm['sc'];nDV=prm['nDV'];nhmatnewsc=prm\
-        ['nhmatnewsc'];dwa=prm['dwa'];w1=prm['w1'];deltao=prm['deltao']
+        ['mode'];pade=prm['pade'];sc=prm['sc'];nDV=prm['nDV'];dwa=prm['dwa'];\
+        w1=prm['w1'];deltao=prm['deltao']
     #If verb is set to 'ose', then the calculation type is printed.
     if verb == 'ose':
         print 'calc '+calctype+'... ',
@@ -305,6 +306,8 @@ def nEVapprox(*args,**kwargs):
     1002,1003,... Laguerre approximation (not implemented in this version)
     2002,2003,.... Halley's method (only numerical)
     """
+    [t,dwb,pb,k12,mode,exporder,pade,evap,dwc,pc,k13,k23,dwd,pd,k14,k24,k34]=\
+        args
         
     #The following section selects the right H matrix. This it, at this time,
     #a little convoluted because parts of this decision tree are located in
@@ -315,7 +318,7 @@ def nEVapprox(*args,**kwargs):
     #pade=2: Log22; pade=3: Log33.
     if exporder == 10 or exporder == 0 or pade == 0:
         mtx=approxdefs(mode=2,calctype='nHmatpro',exporder=exporder,pade=pade,\
-        nhmatnewsc=nhmatnewsc,pb=pb,pc=pc,pd=pd,k12=k12,k13=k13,k14=k14,k23=\
+        pb=pb,pc=pc,pd=pd,k12=k12,k13=k13,k14=k14,k23=\
         k23,k24=k24,k34=k34,dwb=dwb,dwc=dwc,dwd=dwd,t=t)
     
     #This selects and calculates the eigenvalue approximations

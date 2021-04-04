@@ -17,7 +17,7 @@ resc2param
 """
 
 from __future__ import division
-import fitfunctions as hkfit2
+import globalfitfunctions as hkfit2
 from hkimports2 import flatten
 from hkimports2 import np
 import itertools

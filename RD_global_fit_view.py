@@ -110,7 +110,7 @@ namresults='multix13_NEW_pfr_STU_'
 namresults='multix13_NEW_pfr_STU_errb_'
 namresults='multix13_NEW_pfr_STU_err3f_'
 namresults='multix13_NEW_pfr_STU_errb3_'
-namresults='multix13_NEW_pfr_STU_err3g_'
+###namresults='multix13_NEW_pfr_STU_err3g_'
 #namresults='multix13_NEW_pfr_S2_'
 #namresults='multix13_NEW_pfr_Sdeb2_'
 
@@ -178,7 +178,8 @@ import globalfitfunctions as hkfit2
 #selnam=[reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A30','A32','A37']#reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A38','A45','A38']
-selnam=['A32','A38','A77','A32','A38','A77']
+selnam=['A54']#,'A32','A37','A38','A45','A50','A53','A54','A73','A77','A78','A86']
+#selnam=['A73']
 #selnam=['A73','A50','A86']
 #selnam=['A53','A50','A73']
 #selnam=['A30']
@@ -211,7 +212,6 @@ else:
 #%%
 
 spinsystems=ss #['x','labxx']
-selnam=['A32','A38','A77']
 labelstring1=[[1,'160 '+r'$\mu$'+'M\n500 MHz'],[4,'640 '+r'$\mu$'+'M\n500 MHz'],[10,'160 '+r'$\mu$'+'M\n700 MHz'],[6,'160 '+r'$\mu$'+'M\n900 MHz'],[8,'640 '+r'$\mu$'+'M\n900 MHz'],[9,'640 '+r'$\mu$'+'M\n900 MHz']]
 labelstring2=[[0,'160 '+r'$\mu$'+'M, 500 MHz'],[2,'640 '+r'$\mu$'+'M, 500 MHz'],[3,'640 '+r'$\mu$'+'M, 500 MHz'],[5,'160 '+r'$\mu$'+'M, 900 MHz'],[7,'640 '+r'$\mu$'+'M, 900 MHz']]
 #labelstring3=[[11,'160 '+r'$\mu$'+'M, 700 MHz, B'+r'$_1$'+' = 15 Hz'],[12,'160 '+r'$\mu$'+'M, 700 MHz, B'+r'$_1$'+' = 25 Hz'],[13,'160 '+r'$\mu$'+'M, 700 MHz, B'+r'$_1$'+' = 50 Hz'],[14,'640 '+r'$\mu$'+'M, 800 MHz, B'+r'$_1$'+' = 35 Hz']]
@@ -222,8 +222,20 @@ labelstring5=[[10,'160 '+r'$\mu$'+'M, 15 Hz'],[11,'160 '+r'$\mu$'+'M, 25 Hz'],[1
 labelstring6=[[0,'160 '+r'$\mu$'+'M, 500 MHz']]
 
 #special plot when the last line is residue 73
-
+selnam=['A32','A37','A38']
 procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0],1,104)
+
+selnam=['A53','A77','A78']
+procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0],0,105)
+
+selnam=['A30','A45','A50']
+procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0],1,106)
+
+selnam=['A54','A73','A86']
+procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring5,labelstring2,labelstring4],[labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0],0,107)
+#procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring5,labelstring2,labelstring4],[labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0],0,107)
+
+
 #procall2.plotelements(spinsystems,selnam,0,[[1,2,5,1,2,5],[1,2,5,1,2,5],[1,2,5,1,2,5],[1,2,5,1,2,5],[1,2,5,1,2,5],[1,2,5,1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1,labelstring3,labelstring2,labelstring1]],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],104)
 
 #procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstring3,labelstring2,labelstring1],[labelstring3,labelstring2,labelstring1],[labelstring5,labelstring2,labelstring4]],[0,0,0,0,0,0,0,0,0])

@@ -87,6 +87,7 @@ def multifunctg2(params,x,m,dwbset,g):
        #     print viarex, viacpmg, rex2, rex1
           #  print calcchoice, rex1, rex2, viarex, viacpmg
      #       print viacpmg, viarex, cpmg2, cpmg1, rex1
+            print calcchoice, viarex, viacpmg
             if calcchoice == 1:
                 result.append(viarex)
             else:
@@ -457,6 +458,7 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
         spinsystems=reshuffle(spinsystems,reslalmall,shuffletype)
     elif precalc == 0:
         spinsystems,setlabels=prepro.launch(path2020,files)
+   # print spinsystems[57].datasets[13].xlabel
     resultcolll=[];
     poscolll=[]
     resnaml=[]
@@ -484,7 +486,9 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
         selset=[]
         q=0
         explist=[]
+      #  print len(expcnd)
         for j,i in enumerate(expcnd):
+           # print i, len(i)
             for l,k in enumerate(i):
                 selsetx=[j]
                 for n,m in enumerate(filters2):

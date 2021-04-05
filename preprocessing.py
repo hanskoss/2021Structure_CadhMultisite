@@ -289,9 +289,9 @@ def processrelaxdat(pathlist,errpos,actualpos,merge,posy,slt,precalcstuff):
    #     print t2[posx],hsl[posx],t2[posx]/hsl[posx], r1rav2, 'rexjustcalct', slt
         #    r1rav2=np.average(selarr)#average(selarr)
         
-        errcomb=-(t2[posx]/hsl[posx])*np.sqrt(np.average((t2err/t2[posx])**2+(hslerr/hsl[posx])**2))
-        errmin=np.min(selarr)
-        errmax=np.max(selarr)
+#        errcomb=-(t2[posx]/hsl[posx])*np.sqrt(np.average((t2err/t2[posx])**2+(hslerr/hsl[posx])**2))
+#        errmin=np.min(selarr)
+#        errmax=np.max(selarr)
         err12=r1rav2-np.min(selarr)
         err22=np.max(selarr)-r1rav2
     #    errmin=-np.log(t2[posx]/hsl[posx]-errcomb)*(1000000/slt)
@@ -404,7 +404,7 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
         
         
     """
-    print spinlistpath,filetype
+ #   print spinlistpath,filetype, setlabel, 'setlabel!'
     os.chdir(spinlistpath)
     relpath='./'
     expcond={}
@@ -525,6 +525,9 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                 spinsystems[nf].datasets.append(RDset(spinlistpath,filetype,dataposition,l,'R2',expcond['nucleus'],setselect))
                 spinsystems[nf].datasets.append(RDset(spinlistpath,filetype,dataposition,l,'R20',expcond['nucleus'],setselect))
                 spinsystems[nf].datasets.append(RDset(spinlistpath,filetype,dataposition,l,'r1rho',expcond['nucleus'],setselect))
+  #              if l == 'A73':
+  #                  print nf, len(spinsystems[nf].datasets), setlabel
+
                 for i in [-4,-3,-2,-1]:
                     spinsystems[nf].datasets[i].addexpcond(expcond)
                 for i in [-4,-3,-2,-1]:
@@ -1082,6 +1085,7 @@ def launch(pathprefix,collection):
             setlabels.append(row[2])
             j.append([i])
     setselectlist=[j]
+   # print setselectlist
     superselector=0
     
     cnt=0
@@ -1099,6 +1103,7 @@ def launch(pathprefix,collection):
             spinsystems=adddata(spinsystems1,pathprefix+pathlist[setselect],filetypelist[setselect],cnt,setselect,setlabels[setselect],pathlist)
             cnt+=1
     spss=[spinsystems[j] for j in list(np.argsort([i.seqno for i in spinsystems]).astype(int))]
+    #print len(spss[57].datasets)
  #   try:
  #       print 'try'
   #      print spinsystems1[5].datasets[1]
@@ -1198,11 +1203,9 @@ def passdatatofitn(spinsystems,selres,prepro):
     timedat=[]; y=[]; err=[]; datasetno=[]; resnaml=[]; equationtype=[]
     field=[]; field2=[]; field3=[]; tr=[]; expcnd=[]; poscoll=[]
     for rr,i in enumerate(spinsystems):
-        #print i
         if selres==[] or i.name[0] in selres:
             poscoll.append(rr)
             resnaml.append(i.name[0])
-     #       print i.name[0], 'name'
             y.append([]);err.append([]);timedat.append([]);datasetno.append([])
             equationtype.append([]);field.append([]);field2.append([]);tr.append([])
             field3.append([])
@@ -1210,7 +1213,6 @@ def passdatatofitn(spinsystems,selres,prepro):
             #print rr 
             removelist=[]
             for l,j in enumerate(spinsystems[rr].datasets):
-   #             print j.datatype, j.datathere, 'whatever'
                 if j.datatype in ['cpmg'] and j.datathere == 1:
                     timedat[-1].append(j.fdata)
                     if prepro != 0:
@@ -1277,4 +1279,5 @@ def passdatatofitn(spinsystems,selres,prepro):
                     removelist.append(l)
             for j in removelist[::-1]:
                 del spinsystems[rr].datasets[j]
+    print len(expcnd[0]), 'expcndl'
     return resnaml,timedat,y,err,field,field2,field3,tr,equationtype,poscoll,expcnd

@@ -64,8 +64,10 @@ def multifunctg2(params,x,m,dwbset,g):
             for N-Site Chemical Exchange. Biochemistry, 57(31), 4753-4763."""
             #result.append(hkRDmath.nEVapprox(a,dwx,pbx,kexx,2,0,2,2,dcx,pcx,k13x,k23x,0,0,0,0,0)+r20) 
     elif g == 6:
-        tx=1/(4*np.array(x))
-        wx=np.array(x)*(np.sqrt(3)*4)/(2*np.pi)
+        #
+        tx=1/(np.array(x))   #tx is exact duration of tau in tau-pi-tau-tau-pi-tau
+        #print x,tx, 'tx2' 
+        wx=np.array(x)*(np.sqrt(3))/(2*np.pi)
         for b,a in enumerate(tx):
             dwx=m[b]*params[5]
             dcx=m[b]*params[6]
@@ -78,16 +80,17 @@ def multifunctg2(params,x,m,dwbset,g):
             For Step 1-3, the CPMG-like calculation is preferred, then R1rho-
             like
             """
+     #       rex1old=hkRDmath.r1req(0,dwx,pbx,kexx,2,4*wx[1]*np.pi*2,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
             rex1=hkRDmath.r1req(0,dwx,pbx,kexx,2,wx[1]*np.pi*2,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
-        #    rex2=hkRDmath.r1reqfree(0.1,dwx,pbx,kexx,2,0001*np.pi*2,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
             cpmg1=hkRDmath.nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
             cpmg2=hkRDmath.nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+     #       viarexold=cpmg2-rex1old
             viarex=cpmg2-rex1
             viacpmg=cpmg2-cpmg1#hkRDmath.nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)-hkRDmath.nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
        #     print viarex, viacpmg, rex2, rex1
           #  print calcchoice, rex1, rex2, viarex, viacpmg
      #       print viacpmg, viarex, cpmg2, cpmg1, rex1
-            print calcchoice, viarex, viacpmg
+        #    print viarex, viacpmg, dwx, tx, pbx, wx[1]*np.pi*2, kexx, dcx, pcx, k13x, k23x, '!' 
             if calcchoice == 1:
                 result.append(viarex)
             else:

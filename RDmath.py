@@ -177,6 +177,7 @@ def approxdefs(**kwargs):
                         np.dot(xmt,xmt)))))/(4*t)
 
     elif calctype == 'r1rBigL2':
+      #  print w1, '!!!!' 
         Lmat=[[[0,-x,0],[x,0,-w1],[0,w1,0]] for x in [dwa,dwb,dwc,dwd]]
         idm=np.matrix(np.identity(3))
         if mode ==2:
@@ -453,4 +454,45 @@ def r1req(*args):
     
     #r1req[t,dwb,pb,k12,mode,w1,pade,evap,dwc,pc,k13,k23,dwd,pd,k14,k24,k34]
 
+#pb=0.016
+#dwx=2.3*90*np.pi*2
+#wx=3.500#*2*np.pi
+#t=int(round(1/(int(40000)/1000000),0))#1/20
+#t2=int(round(float(wx)*3628,0))
+
+#kex=4000
+#print nEVapprox(1/4*np.array(t),dwx,pb,3000,2,0,0,0,0,0,0,0,0,0,0,0,0)
+#print nEVapprox(1/4*np.array(t2),10000,pb,kex,2,0,0,0,300,0.0001,100,0,0,0,0,0,0)
+limittest=0
+if limittest == 1:
+    wx=3.5#3#.500
+    tSL=30000
+    tx=[1/int(round(1/(int(tSL)/2000000),0)),1/int(round(float(wx)*3628,0))]
+    #tx=[0.00757576,0.0000196881]
+    dwx=-3149
+    pbx=0.08
+    kexx=35000
+    
+    #10.634108040493764 10.6414710278 -972.8306565300018 [1.49253731e-02 7.87525595e-05] 0.015636672138346457 21993.581154509604 3260.9438716664763 
+    dcx=0#-880.7275061160019 
+    pcx=0#0.01636462632854531 
+    k13x=0#665.4799970018257 
+    k23x=0#1.9999999999999947
+    #print viarex, viacpmg, dwx, tx, pbx, wx[1]*np.pi*2, kexx, dcx, pcx, k13x, k23x, '!' 
+    
+    rex1=r1req(0,dwx,pbx,kexx,2,wx*2*np.pi,0,0,0,0,0,0,0,0,0,0,0)
+    cpmg1=nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    cpmg2=nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    viarex=cpmg2-rex1
+    viacpmg=cpmg2-cpmg1#hkRDmath.nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)-hkRDmath.nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    
+    dwx=-695
+    rex1=r1req(0,dwx,pbx,kexx,2,wx*2*np.pi,0,0,0,0,0,0,0,0,0,0,0)
+    cpmg1=nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    cpmg2=nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    viarex2=cpmg2-rex1
+    viacpmg2=cpmg2-cpmg1#hkRDmath.nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)-hkRDmath.nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
+    
+    #print viarex
+    print viacpmg#, viacpmg2
 

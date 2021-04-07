@@ -178,7 +178,7 @@ import globalfitfunctions as hkfit2
 #selnam=[reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A30','A32','A37']#reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A38','A45','A38']
-selnam=['A54']#,'A32','A37','A38','A45','A50','A53','A54','A73','A77','A78','A86']
+selnam=['A30']#,'A32','A37','A38','A45','A50','A53','A54','A73','A77','A78','A86']
 #selnam=['A73']
 #selnam=['A73','A50','A86']
 #selnam=['A53','A50','A73']

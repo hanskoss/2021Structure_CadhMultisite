@@ -1150,9 +1150,12 @@ def passdatatofitn(spinsystems,selres,prepro):
             for high power levels. Convert Spinlock data to pseudo-CPMG-data:
             no spin lock: calculate pseudo CPMG frequency directly from duration\
                 of tSL period (during which no spin lock is applied)
+                example: total SL; 30 ms. one refocussing pulse so essentially
+                t = 15 ms
             spinlock in kHz *2*pi*1000: s-1. then divide by sqrt(3) \
-                for comparability with CPMG-tau (1/2 period) according 
-                to Torchia, Ishima, J Biomol NMR, 1999.
+                so that the resulting frequency is of 1/(tau) duration according 
+                to Torchia, Ishima, J Biomol NMR, 1999. tau being 1/4 duration
+                of the CPMG double block (t - 180 - 2t - 180 - t)
         CEST: CEST offset from main peak in ppm (0 for 0 offset)
     y: lists of y-axis data lists for relaxation dispersion 
         CPMG/CEST: either takes the original experimental data, or the resampled
@@ -1242,7 +1245,8 @@ def passdatatofitn(spinsystems,selres,prepro):
                 elif j.datatype in ['Rex'] and j.datathere == 1:
                     tSL=j.expcond['tSL']
                     SLHz=j.expcond['SLHz']
-                    timedat[-1].append([int(round(1/(int(tSL)/1000000),0)), int(round(float(SLHz)*3628,0))])
+            #        print tSL
+                    timedat[-1].append([int(round(1/(int(tSL)/2000000),0)), int(round(float(SLHz)*3628,0))])
                     if prepro != 0 and prepro != 1:
                         y[-1].append(j.reshufy)
                     else:
@@ -1279,5 +1283,5 @@ def passdatatofitn(spinsystems,selres,prepro):
                     removelist.append(l)
             for j in removelist[::-1]:
                 del spinsystems[rr].datasets[j]
-    print len(expcnd[0]), 'expcndl'
+   # print len(expcnd[0]), 'expcndl'
     return resnaml,timedat,y,err,field,field2,field3,tr,equationtype,poscoll,expcnd

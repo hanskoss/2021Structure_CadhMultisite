@@ -7,7 +7,6 @@ All this file does is importing modules not created by myself.
 This is supposed to help getting an overview about 
 important dependencies and packages. Might include more details later.
 """
-
 import sympy as smp
 import numpy as np
 import scipy as scp

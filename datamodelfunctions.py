@@ -433,12 +433,6 @@ def parammake(PropAxesColl,parbdslistb,parbdslista,k12min,k12max,k13min,k13max,k
     R20500nTRmax=12
     R2multmin=1
     R2multmax=3
-    pmin=0.005
-    pmax=0.04
-    pmin=0.014 #0.016
-    pmax=0.0165
-    dwmin=-60000
-    dwmax=60000
     
     paramsxx=[]
     for u in np.arange(100):
@@ -483,7 +477,7 @@ def parammake(PropAxesColl,parbdslistb,parbdslista,k12min,k12max,k13min,k13max,k
 
 
 
-def parallelmultifit4(setparameters3,outernum,numrep,paramsxx):
+def parallelmultifit4(path2020,savstatdir,setparameters3,outernum,numrep,paramsxx,PropAxesColl):
     """parallel fitting engine"""
     processes=[]
     pn=0
@@ -492,7 +486,7 @@ def parallelmultifit4(setparameters3,outernum,numrep,paramsxx):
         for runnum in np.arange(numrep):
             print 'run ', str(outnum*numrep+runnum)
             #p=parallelfit(setparameters,runnum)
-            p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(setparameters3,outnum*numrep+runnum,paramsxx[outnum*numrep+runnum]))
+            p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(path2020,savstatdir,setparameters3,outnum*numrep+runnum,paramsxx[outnum*numrep+runnum],PropAxesColl))
             processes.append(p)
             processes[pn].start()
             pn+=1

@@ -87,10 +87,6 @@ def multifunctg2(params,x,m,dwbset,g):
      #       viarexold=cpmg2-rex1old
             viarex=cpmg2-rex1
             viacpmg=cpmg2-cpmg1#hkRDmath.nEVapprox(tx[0],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)-hkRDmath.nEVapprox(tx[1],dwx,pbx,kexx,2,0,0,0,dcx,pcx,k13x,k23x,0,0,0,0,0)
-       #     print viarex, viacpmg, rex2, rex1
-          #  print calcchoice, rex1, rex2, viarex, viacpmg
-     #       print viacpmg, viarex, cpmg2, cpmg1, rex1
-        #    print viarex, viacpmg, dwx, tx, pbx, wx[1]*np.pi*2, kexx, dcx, pcx, k13x, k23x, '!' 
             if calcchoice == 1:
                 result.append(viarex)
             else:
@@ -172,7 +168,7 @@ def printrd(praxs1,x,exp_data,m,err,g,dwbset,par,fl):
             (np.array(flatten(err))*np.sqrt(len(flatten(exp_data))-paramno)))
 
 
-def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filenamsav,resnam,poscoll,moreconditions,paramsx,fl):
+def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,savstatdir,filenamsav,resnam,poscoll,moreconditions,paramsx,fl):
     """ Fitting multiple types of relaxation dispersion data (function title somewhat misleading).
     input arguments: praxs1: property axis collection; timedat: x axis data; rawdata: \
     y axis data; field: B0 field relative to 500 MHz, err: y error, mode: not used here, \
@@ -246,7 +242,7 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
     costcoll=[]
     for u in np.arange(numbattempts):
         np.random.seed()
-        evalmode=0
+        evalmode=1
         a,b1,b2,c,e=paramsx.getallparandbnds(praxs1,['p','k','dw','R20500','R2mult'],inclfilt=[])
         par1=a[u];boundsl=b1[u];boundsh=b2[u]
         if evalmode == 1:
@@ -271,14 +267,13 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
                         bounds=(boundsl,boundsh),args=(par2,par3,par6,par7,\
                         errvalpar,gparn,fl),method='trf',jac='3-point',x_scale='jac') #,
                     par1=res.x
-                    print 'attempt ', u, ' precalculation step ', u, k, par1,res.cost,filenamsav
                     allrescoll.append(res)
-                    print allrescoll[-1].cost, 'cost', res.cost
+                    print 'attempt ', u, ' precalculation step ', u, k, par1,res.cost,filenamsav, allrescoll[-1].cost
                     hkio.savstatus2b(savstatdir,filenamsav,resnam,poscoll,allrescoll,allconditions)
             except:
                 print 'well this one didnt work'
-        par1coll.append(res.x)
-        costcoll.append(res.cost)
+            par1coll.append(res.x)
+            costcoll.append(res.cost)
     if precalcatt > 0:
         try:
             par1=par1coll[np.argmin(costcoll)]
@@ -293,8 +288,7 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,filen
         hkio.savstatus2b(savstatdir,filenamsav,resnam,poscoll,allrescoll,allconditions)
         par1=res.x
             
-        print allrescoll[-1].cost, 'costx'
-        print 'mainalculation step ', u, k, par1, res.cost,filenamsav
+        print 'mainalculation step ', u, k, par1, res.cost,filenamsav, allrescoll[-1].cost
     for i in res.x:
         print i
     print 'final cost', res.cost
@@ -534,7 +528,7 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
         poscolll.append(poscoll)
         if drawonly == 0:
             sojetzt,allrescoll=fitcpmg4(praxs1,timedat,rawdata,field,errd,\
-                precalc,equationtype,conditions,filenamsav,resnaml, poscolll,\
+                precalc,equationtype,conditions,savstatdir,filenamsav,resnaml, poscolll,\
                 moreconditions,paramsx,filt)
         else:
             dwbsetp=[]

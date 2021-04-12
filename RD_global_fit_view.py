@@ -22,8 +22,12 @@ linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
 linuxss='/home/hanskoss/scripts/relaxproc/savstat'
 windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
-savstatdir=windowsss
-path2020=windows#linux#windows
+linux='/home/hanskoss/scripts/github/2021Structure_CadhMultisite/exptl_data/'
+windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
+linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
+windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
+savstatdir=linuxss
+path2020=linux#linux#windows
 
 def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savstatdir,namresults,conditions):
     """
@@ -110,6 +114,8 @@ namresults='multix13_NEW_pfr_STU_'
 namresults='multix13_NEW_pfr_STU_errb_'
 namresults='multix13_NEW_pfr_STU_err3f_'
 namresults='multix13_NEW_pfr_STU_errb3_'
+namresults='multix13_NEW_pfr_FINAL_stage2b'
+#namresults='multix13_NEW_pfr_STU_FINAL_'
 ###namresults='multix13_NEW_pfr_STU_err3g_'
 #namresults='multix13_NEW_pfr_S2_'
 #namresults='multix13_NEW_pfr_Sdeb2_'

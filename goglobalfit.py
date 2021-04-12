@@ -14,12 +14,16 @@ from hkimports2 import np
 from hkimports2 import copy
 from hkimports2 import multiprocessing
 
-
 linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
+linux='/home/hanskoss/scripts/github/2021Structure_CadhMultisite/exptl_data/'
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
-path2020=linux#windows
+linuxss='/home/hanskoss/scripts/relaxproc/savstat'
+linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
+windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
+savstatdir=linuxss
+path2020=linux#linux#windows
 
-def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namresults,conditions):
+def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savstatdir,namresults,conditions):
     """
     reads global fitting results from file.
     reslall: list of all residues possibly used for the results output, with a letter
@@ -64,7 +68,7 @@ def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namr
     #them are in use, so no need to understand every single variable here.
     poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
         results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
-        intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything([namresults],0,decoupl=0)
+        intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
     costcoll=[i.cost for i in resultcoll]
     #resultcoll=[resultcoll[np.argsort(costcoll)[0]]]
     ParameterColl2=mainfuncts.resc2param(PropAxesColl,ParameterColl,resultcoll,2)
@@ -72,8 +76,12 @@ def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namr
     costcoll=[costcoll[i] for i in np.argsort(costcoll)]
     return PropAxesColl,ParameterColl2, costcoll, resultcoll,cond
 # attempt to set up a completely new run from scratch.
-#%%
 
+
+#%%
+"""
+These calculations do not restrict delta omega based on field dependent shifts (control)
+"""
 """
 Stage 1:"Fitting of data using very wide ranges of parameter boundaries.
 Established initial parameters used in Stage 2."
@@ -90,6 +98,7 @@ are nitrogen experiments so actual deltaOs will be much smaller.
 reslall=['A14','A30','A32','A37','A38','A43','A45','A50','A53','A54','A55','A73','A77','A78','A86']
 resnall=[14,30,32,37,38,43,45,50,53,54,55,73,77,78,86]
 pickthese=[1,2,3,4,6,7,8,9,11,12,13,14]
+
 DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000, 26000], [-13000, 13000]],\
                   [[-1, 1], [-22500,-6855], [-6827,-6206]],\
                   [[-1, 1], [2640, 8675], [1669, 1836]],\
@@ -106,14 +115,7 @@ DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000, 26000], [-13000, 13000]],\
                   [[-1, 1], [7279, 13742], [7251, 7976]],\
                   [[-1, 1], [-26000, 26000],[1000, 13000]]]
 
-
-"""Generate output file name; then define conditions of the run, in this case:
-    3 attempts of 3 documented pre-run steps with three undocumented fitting
-    steps each. The property axes for all residues are created. The property
-    axes are important to define and describe parameters, as outlined elsewhere
-    and in the paper.
-    Note: For stage 2 in the paper, this multi-run was split into three (S, T, U)"""
-namresults='multix13_NEW_pfr_U2_'
+namresults='FINALstage2a'
 conditions=[0,[3,3,3,1,1]]
 PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
     enumerate(reslall) if y in pickthese],[x for y,x in enumerate(resnall)\
@@ -129,33 +131,23 @@ ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\
 
 """compile setting and start global fit (stage 3a): 5 x 20 parallel calculations."""
 setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults,0]
-mainfuncts.parallelmultifit4(setparameters3,5,20,ParameterColl,PropAxesColl)
 
+mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,3,30,ParameterColl,PropAxesColl)
 
-#%%
 """
-combine results form the stage 3a calculations, gives 100 runs, with 3 attempts
+combine results form the stage 2a calculations, gives 100 runs, with 3 attempts
 each"   
 """
 reslalmall=[reslall[i] for i in pickthese]
-namresultsprev='multix13_NEW_pfr_S2_'
-poscoll,resnam,allsetcoll1,resultcoll,relaxrat0,relaxrat,lookatratio,\
+namresultsprev='FINALstage2a'
+poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
     results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
-    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything([namresultsprev],0,decoupl=0)
-namresultsprev='multix13_NEW_pfr_T2_'
-poscoll,resnam,allsetcoll2,resultcoll,relaxrat0,relaxrat,lookatratio,\
-    results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
-    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything([namresultsprev],0,decoupl=0)
-namresultsprev='multix13_NEW_pfr_U2_'
-poscoll,resnam,allsetcoll3,resultcoll,relaxrat0,relaxrat,lookatratio,\
-    results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
-    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything([namresultsprev],0,decoupl=0)
+    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresultsprev],0,decoupl=0)
 
-allsetcoll=allsetcoll1+allsetcoll2+allsetcoll3
 
 """
-from the 100 runs, the results of the last step from each of the three 
-precalculation attempts is collected. The best 100 (lowest cost) of the 300
+from the 90 runs, the results of the last step from each of the three 
+precalculation attempts is collected. The best 90 (lowest cost) of the 270
 collected results are then selected to continue the fit (stage 3b), with 10
 documented steps of 5 undocumented fitting substeps.
 """
@@ -168,26 +160,108 @@ for i in allsetcoll:
 allcostcoll=flatten(allcostcoll)
 sortedcosts=np.argsort(allcostcoll)
 
-for sel in np.arange(100):
+for sel in np.arange(90):
     pos2=sortedcosts[sel]%3*3+2
     pos1=int(np.floor(sortedcosts[sel]/3))
     resultcoll.append(allsetcoll[pos1][pos2])
-namresults='multix13_NEW_pfr_STU_'
+namresults='FINAL_stage2b'
     
 ParameterColl2=mainfuncts.resc2param(PropAxesColl,ParameterColl,resultcoll,2)
-conditions=[0,[1,1,1,10,5]]
+conditions=[0,[1,0,0,10,5]]
 setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults,0]
 
-mainfuncts.parallelmultifit4(setparameters3,5,20,ParameterColl2,PropAxesColl)
+mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,3,30,ParameterColl2,PropAxesColl)
+
+
 #%%
-"""Stage 5: extended fitting procedure / minimization to account for all 16 
+""" with restrictions of delta omega based on field-dependent chemical shifts"""
+reslall=['A14','A30','A32','A37','A38','A43','A45','A50','A53','A54','A55','A73','A77','A78','A86']
+resnall=[14,30,32,37,38,43,45,50,53,54,55,73,77,78,86]
+pickthese=[1,2,3,4,6,7,8,9,11,12,13,14]
+
+DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-22500,-6855], [-6827,-6206]],\
+                  [[-1, 1], [2640, 8675], [1669, 1836]],\
+                  [[-1, 1], [-26000, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-26000, 0], [-24000, -100]],\
+                  [[-1, 1], [-790,-718], [773, 850]],\
+                  [[-1, 1], [-26000, 0], [-471,-428]],\
+                  [[-1, 1], [-0, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-26000, 0], [-2255,-2050]],\
+                  [[-1, 1], [-2711,-2465], [-3760,-3418]],\
+                  [[-1, 1], [-133,-121], [2037, 2241]],\
+                  [[-1, 1], [-26000, 0], [1000, 13000]],\
+                  [[-1, 1], [0, 26000], [1000, 13000]],\
+                  [[-1, 1], [7279, 13742], [7251, 7976]],\
+                  [[-1, 1], [-26000, 26000],[1000, 13000]]]
+
+namresults='FINALstage2c'
+conditions=[0,[3,3,3,1,1]]
+PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
+    enumerate(reslall) if y in pickthese],[x for y,x in enumerate(resnall)\
+             if y in pickthese])
+
+"""Based on the defined property axes, parameter sets with certain boundaries
+    are created. The first (commented out) set belongs to stage 1, the other
+    to stage 2"""
+#ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\     run N
+#    (DeltaOmegaParametersBoundaries) if y in pickthese],1,10000,100,900,1,2,0.005,0.5)
+ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\
+    (DeltaOmegaParametersBoundaries) if y in pickthese],1000,8000,100,900,1,2,0.005,0.1)
+
+"""compile setting and start global fit (stage 3a): 5 x 20 parallel calculations."""
+setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults,0]
+
+mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,1,20,ParameterColl,PropAxesColl)
+
+"""
+combine results form the stage 2c calculations, gives 100 runs, with 3 attempts
+each"   
+"""
+reslalmall=[reslall[i] for i in pickthese]
+namresultsprev='FINALstage2c'
+poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+    results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresultsprev],0,decoupl=0)
+
+
+"""
+from the 20 runs, the results of the last step from each of the three 
+precalculation attempts is collected. The best 20 (lowest cost) of the 60
+collected results are then selected to continue the fit (stage 3b), with 10
+documented steps of 5 undocumented fitting substeps.
+"""
+
+resultcoll=[]
+allcostcoll=[]
+for i in allsetcoll:
+    allcostcoll.append([i[j].cost for j in [2,5,8]])
+    
+allcostcoll=flatten(allcostcoll)
+sortedcosts=np.argsort(allcostcoll)
+
+for sel in np.arange(20):
+    pos2=sortedcosts[sel]%3*3+2
+    pos1=int(np.floor(sortedcosts[sel]/3))
+    resultcoll.append(allsetcoll[pos1][pos2])
+namresults='FINAL_stage2d'
+    
+ParameterColl2=mainfuncts.resc2param(PropAxesColl,ParameterColl,resultcoll,2)
+conditions=[0,[1,0,0,10,5]]
+setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults,0]
+
+mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,1,20,ParameterColl2,PropAxesColl)
+
+
+
+"""Stage 3: extended fitting procedure / minimization to account for all 16 
 different possible combinations of ambiguous dwb and dwc"""
 
 ""
-namresultsprev='multix13_NEW_pfr_STU_'
+namresultsprev='FINAL_stage2d'
 
-""" read in results from stage 4"""
-conditions=[0,[1,1,1,10,5]]
+""" read in results from stage 2d"""
+conditions=[0,[1,0,0,10,5]]
 PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namresultsprev,conditions)
 reslalmall=[reslall[i] for i in pickthese]
 
@@ -225,7 +299,7 @@ ParameterColl3=[ParameterColl2[np.argsort(costcoll)[0]] for i in np.arange(16)]
 ParameterColl4=mainfuncts.resc2param(PropAxesColl,ParameterColl3,resultcoll2,2)
 
 
-"""The parameter set with the 16 copies of the most suited result from stage 4
+"""The parameter set with the 16 copies of the most suited result from stage 2d
 is now modified (into a copy of the set) by testing all 16 combinations of
 ambiguous dwb and dwc signs."""
 
@@ -261,24 +335,24 @@ For ambiguous dwb, dwc, there are two sets of results. Other parameters
 are similar enough to be merged because the difference between them is much
 smaller than the arising from the subsequent error calculation"""
     
-conditions=[0,[1,1,1,5,5]]
-setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'multix13_NEW_pfr_STU_errb_',0]
+conditions=[0,[1,0,0,5,5]]
+setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_',0]
 mainfuncts.parallelmultifit4(setparameters3,1,16,ParameterColl6,PropAxesColl)
 
 
-#%%
-""" Stage 6 - error calculation. In this final stage, errors are obtained by
+
+""" Stage 4 - error calculation. In this final stage, errors are obtained by
 resampling. For each of the 16 outputs from the previous calculation, 5
 parameter sets from randomly resampled data are calculated. This gives a
 total of 80 paarametersets to then report the error by calculating the standard
 deviation for each parameter """
 dataname=cond[-1][-1]
-setparameters2=[dataname,path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'multix13_NEW_pfr_STU_errb_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
+setparameters2=[dataname,path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
 for selset in np.arange(16):
     ss=hkfit2.evaluaterdfit(PropAxesColl,setparameters2,1,ParameterColl6[selset],0)
-    hkio2.savss(ss,'multix13_NEW_pfr_STU_err2b_'+str(selset))
+    hkio2.savss(ss,'FINAL_stage3x_'+str(selset))
 
-conditions=[0,[1,1,1,5,5]]
+conditions=[0,[1,0,0,5,5]]
 processes=[]
 """ The parallelization for this process is explicitly coded because each of 
 the 16 results from stage 5 uses a slightly different calculated result for 
@@ -290,7 +364,7 @@ for outnum in np.arange(outnum):
     pn0=list([pn])[0]
     for runnum in np.arange(numrep):
         print 'run ', str(outnum*numrep+runnum)
-        setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'multix13_NEW_pfr_STU_err3b_','multix13_NEW_pfr_STU_err2b_'+str(runnum)]
+        setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage4_','FINAL_stage3x_'+str(runnum)]
         p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(setparameters3,outnum*numrep+runnum,ParameterColl6[runnum],PropAxesColl))
         processes.append(p)
         processes[pn].start()
@@ -300,3 +374,5 @@ for outnum in np.arange(outnum):
         processes[pn].join()
         pn+=1
     print 'really done with ', str(outnum*numrep+numrep), 'runs'
+
+

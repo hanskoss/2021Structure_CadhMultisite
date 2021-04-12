@@ -599,6 +599,7 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
         vdfs=np.array([vdf[j] for j in [list(vcf).index(i) for i in vcfs]])
         fdata=1/(4*vdfs)
         decaytimes=vcfs*(p4pulsenumber*p2/1000000+p4pulsenumber*2*vdfs)
+        fdata=1/(4*(decaytimes/(vcfs*2*p4pulsenumber)))
         label=[];intens=[];peakno=[]
         
         with open('CPMGpeaks.dat','rb') as csvfile:
@@ -662,7 +663,7 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                     ydataerr=zip([-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
                 else:
                     ydataerr=zip([-np.log(j[0][i]-j[1][i])*(1/decaytimex[i])+np.log(j[0][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
-                if fdata[-1] > 3500:
+                if fdata[-1] > 2000:
                     spinsystems[nf].datasets[-1].addcpmgdata(setlabel,field,nitrotag,p2,fdata[1:-1],ydata[:-1],ydataerr[:-1],vcfs[1:-1],vdfs[1:-1],decaytimex) #[1,;]
                 else:
                     spinsystems[nf].datasets[-1].addcpmgdata(setlabel,field,nitrotag,p2,fdata[1:],ydata,ydataerr,vcfs[1:],vdfs[1:],decaytimex) #[1,;]
@@ -1074,9 +1075,9 @@ def launch(pathprefix,collection):
     pathlist=[]
     filetypelist=[]
     setlabels=[]
-    global spinsystems1, spinsystems
     spinsystems=[]
     j=[]
+#    print collection, pathprefix,'collection'
     with open(collection,'rb') as csvfile:
         filetext = csv.reader(csvfile, delimiter=' ')
         for i,row in enumerate(filetext):
@@ -1084,6 +1085,7 @@ def launch(pathprefix,collection):
             filetypelist.append(int(row[1]))
             setlabels.append(row[2])
             j.append([i])
+#    print pathlist, 'pathlist' 
     setselectlist=[j]
    # print setselectlist
     superselector=0

@@ -11,14 +11,14 @@ import iofunctions as hkio2
 import datamodelfunctions as mainfuncts
 from hkimports2 import flatten
 from hkimports2 import np
-from hkimports2 import copy
+import copy
 from hkimports2 import multiprocessing
 
 linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
-linux='/home/hanskoss/scripts/github/2021Structure_CadhMultisite/exptl_data/'
+linux='/home/hanskoss/scripts/Github/2021Structure_CadhMultisite/exptl_data/'
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
 linuxss='/home/hanskoss/scripts/relaxproc/savstat'
-linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
+#linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
 windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
 savstatdir=linuxss
 path2020=linux#linux#windows
@@ -252,7 +252,7 @@ setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y i
 
 mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,1,20,ParameterColl2,PropAxesColl)
 
-
+#%%
 
 """Stage 3: extended fitting procedure / minimization to account for all 16 
 different possible combinations of ambiguous dwb and dwc"""
@@ -262,7 +262,7 @@ namresultsprev='FINAL_stage2d'
 
 """ read in results from stage 2d"""
 conditions=[0,[1,0,0,10,5]]
-PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,namresultsprev,conditions)
+PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savstatdir,namresultsprev,conditions)
 reslalmall=[reslall[i] for i in pickthese]
 
 """ Filter out all results which match the final conditions for dwb and dwc
@@ -337,21 +337,21 @@ smaller than the arising from the subsequent error calculation"""
     
 conditions=[0,[1,0,0,5,5]]
 setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_',0]
-mainfuncts.parallelmultifit4(setparameters3,1,16,ParameterColl6,PropAxesColl)
+mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,1,16,ParameterColl6,PropAxesColl)
 
-
-
+#%%
+import globalfitfunctions as hkfit2
 """ Stage 4 - error calculation. In this final stage, errors are obtained by
 resampling. For each of the 16 outputs from the previous calculation, 5
 parameter sets from randomly resampled data are calculated. This gives a
 total of 80 paarametersets to then report the error by calculating the standard
 deviation for each parameter """
 dataname=cond[-1][-1]
-setparameters2=[dataname,path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
+setparameters2=[dataname,path2020,[x for y,x in enumerate(reslall) if y in pickthese],conditions,'FINAL_stage3_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
 for selset in np.arange(16):
-    ss=hkfit2.evaluaterdfit(PropAxesColl,setparameters2,1,ParameterColl6[selset],0)
-    hkio2.savss(ss,'FINAL_stage3x_'+str(selset))
-
+    ss=hkfit2.evaluaterdfit(path2020,savstatdir,PropAxesColl,setparameters2,1,ParameterColl6[selset],0)
+    hkio2.savss(savstatdir,ss,'FINAL_stage3x_'+str(selset))
+#%%
 conditions=[0,[1,0,0,5,5]]
 processes=[]
 """ The parallelization for this process is explicitly coded because each of 
@@ -365,7 +365,7 @@ for outnum in np.arange(outnum):
     for runnum in np.arange(numrep):
         print 'run ', str(outnum*numrep+runnum)
         setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage4_','FINAL_stage3x_'+str(runnum)]
-        p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(setparameters3,outnum*numrep+runnum,ParameterColl6[runnum],PropAxesColl))
+        p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(path2020,savstatdir,setparameters3,outnum*numrep+runnum,ParameterColl6[runnum],PropAxesColl))
         processes.append(p)
         processes[pn].start()
         pn+=1

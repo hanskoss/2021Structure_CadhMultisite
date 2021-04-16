@@ -7,7 +7,9 @@ from hkimports2 import smp
 from hkimports2 import np
 from hkimports2 import scp
 from hkimports2 import scplin
-from hkimports2 import scipyexpm
+from scipy.linalg import expm
+
+#from hkimports2 import expm
 
 smp.init_printing(pretty_print=True,num_columns=150)
 def anyisnotsymbol(listx,eq0):
@@ -424,7 +426,7 @@ def cestfunction(omegarflist,deltaAB,deltaAC,k12,k13,k23,pb,pc,w1x,R1,R2,B0,exac
         
         if exactx == 1:
             Z=threetriangfunctionx(dwa,dwb,dwc,k12,k13,k23,pb,pc,w1,R1,R2)
-            at =scipyexpm(trad*Z)    
+            at =expm(trad*Z)    
             m0 = np.array([0.5,0,0,1-pb-pc,0,0,pb,0,0,pc])
             m1= np.array([0.5,0,0,-(1-pb-pc),0,0,-pb,0,0,-pc])
             magA=at[3,3]*m0[3]+at[3,6]*m0[6]+at[3,9]*m0[9]

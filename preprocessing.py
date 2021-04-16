@@ -406,6 +406,7 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
     """
  #   print spinlistpath,filetype, setlabel, 'setlabel!'
     os.chdir(spinlistpath)
+##    print spinlistpath
     relpath='./'
     expcond={}
     try:
@@ -597,9 +598,9 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
         vdf=np.array([i[1] if j+1 not in trpos else 0 for j,i in enumerate(zip(vc,vd))])
         vcfs=np.sort(np.array(list(set(vcf))))
         vdfs=np.array([vdf[j] for j in [list(vcf).index(i) for i in vcfs]])
-        fdata=1/(4*vdfs)
-        decaytimes=vcfs*(p4pulsenumber*p2/1000000+p4pulsenumber*2*vdfs)
-        fdata=1/(4*(decaytimes/(vcfs*2*p4pulsenumber)))
+        vcfsno0=np.array([j if j > 0 else 0.00001 for j in vcfs])
+        decaytimes=vcfsno0*(p4pulsenumber*p2/1000000+p4pulsenumber*2*vdfs)
+        fdata=(vcfs*2*p4pulsenumber)/(4*(decaytimes))
         label=[];intens=[];peakno=[]
         
         with open('CPMGpeaks.dat','rb') as csvfile:
@@ -658,14 +659,19 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                 j.append((dataint/trint)*np.sqrt((np.array(err/np.array(dataint))/np.array(flatten(np.sqrt(np.array(pntcnt)))))**2+(np.array((err/np.array(trint)))/np.sqrt(pntcntr))**2))
                 #print (dataint/trint)*np.sqrt((np.array(err/np.array(dataint))/np.array(flatten(np.sqrt(np.array(pntcnt)))))**2+(np.array((err/np.array(trint)))/np.sqrt(pntcntr))**2)
                 decaytimex=decaytimes[1:]
+                #print j[0]
                 ydata=([-np.log(j[0][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
                 if np.min([(j[0][i]-j[1][i]) for i in np.arange(len(j[0]))]) < 0:
+#                    print 'path1'
                     ydataerr=zip([-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
                 else:
+#                    print 'path2'#, j[0], j[1], j[0]-j[1], j[0]+j[1]
                     ydataerr=zip([-np.log(j[0][i]-j[1][i])*(1/decaytimex[i])+np.log(j[0][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
                 if fdata[-1] > 2000:
+           #         print fdata[1:-1]
                     spinsystems[nf].datasets[-1].addcpmgdata(setlabel,field,nitrotag,p2,fdata[1:-1],ydata[:-1],ydataerr[:-1],vcfs[1:-1],vdfs[1:-1],decaytimex) #[1,;]
                 else:
+          #          print fdata[1:]
                     spinsystems[nf].datasets[-1].addcpmgdata(setlabel,field,nitrotag,p2,fdata[1:],ydata,ydataerr,vcfs[1:],vdfs[1:],decaytimex) #[1,;]
              #   datasets[-1].addss(nf,l)
                 #print np.sqrt((err/dataint)**2+(err/trint)**2)
@@ -1101,6 +1107,7 @@ def launch(pathprefix,collection):
     cnt=0
     for sspos1, setselecta in enumerate(setselectlist[superselector]):
         for sspos2, setselect in enumerate(setselecta):
+##            print sspos1,sspos2, 'positionc'
      #       print pathprefix+pathlist[setselect],filetypelist[setselect],cnt,setselect,setlabels[setselect],pathlist, 'someparameters'
             spinsystems=adddata(spinsystems1,pathprefix+pathlist[setselect],filetypelist[setselect],cnt,setselect,setlabels[setselect],pathlist)
             cnt+=1

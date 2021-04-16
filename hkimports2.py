@@ -28,6 +28,6 @@ import copy
 from datetime import datetime, date
 #import hk_cpmg_symbolic1_3
 import matplotlib.gridspec as gridspec 
-from scipy.linalg import expm as scipyexpm
+from scipy.linalg import expm
 from scipy.optimize import curve_fit
 

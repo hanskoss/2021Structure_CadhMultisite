@@ -434,6 +434,151 @@ def reshuffle(ss,reslalmall,shuffletype):
                 q+=1
     return ss
 
+def runfit4b(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir,files,filenamsav,paramsx,drawonly,cond):
+    """ This function prepares the global fit
+    input arguments
+    praxs1: property axis collections
+    ctd
+    precalc: triggers different preparatory routines depending on this switch
+        0: regular fit, no pre-calculated data
+        1: uses re-sampled data supplied by cond[1].
+        2: loads a previously performed calculation and calls a dedicated \
+            re-sampling function.
+    
+    
+    """
+    global spinsystems
+
+    moreconditions=[ctd,selresidues,precalc,resnam,files]
+    if precalc != 0 and precalc != 1:
+        spinsystems=hkio.loadss(savstatdir,precalc)
+        reslalmall=selresidues[0]#[reslall[i] for i in pickthese]
+        shuffletype=[['cpmg','dataset'],['Rex','dataset'],['cest','each']]
+        spinsystems=reshuffle(spinsystems,reslalmall,shuffletype)
+    elif precalc == 1:
+        
+        reslalmall=selresidues
+   #     print reslalmall, 'reslalmall'
+        spinsystems,setlabels=prepro.launch(path2020,files)
+        nr=0
+        for ssn,spins in enumerate(spinsystems):
+            if spins.name[0] in reslalmall:
+       #         print ''
+        #        print spins.name[0]
+                #dsn=0
+                for dsn,ds in enumerate(spins.datasets):
+                    if ds.datatype in ['Rex', 'cpmg', 'cest']:
+                        if ds.datatype == 'Rex':
+                            spinsystems[ssn].datasets[dsn].reshufy=cond[1][nr][0]
+                        else:
+                            spinsystems[ssn].datasets[dsn].reshufy=cond[1][nr]
+          #              print 'reshuf'
+          #              print spinsystems[ssn].datasets[dsn].reshufy
+
+                        nr+=1
+                    #    dsn+=1
+        
+    elif precalc == 0:
+ #       print 'path'
+  #      print path2020,files,'!!!!!!'
+        spinsystems,setlabels=prepro.launch(path2020,files)
+    #    print vars(spinsystems[55].datasets[5])
+            #print i.xlabel
+  #  print 'p2'
+    if len(ctd) == 0:
+        resultcolll=[]
+        poscolll=[]
+        resnaml=[]
+        allresultcoll=[]
+    else:
+        resultcolll=ctd[0]
+        poscolll=ctd[1]
+        resnaml=resnam
+        allresultcoll=[]
+    for selectdatn in selresidues:
+      #  global expcnd
+        resnaml,timedat,rawdata,errd,field,field2,field3,tr,equationtype,poscoll,expcnd=prepro.passdatatofitn(spinsystems,selectdatn,precalc)
+   #     print rawdata, 'rawdata'
+   #ss[     print selectdatn, precalc, rawdata, 'step'
+        filters=[[['residues','name'],[[rn] for rn in resnaml]],[['conc','value'],[['2.475'],['9.9']]],[['TR','name'],[['T'],['X']]],[['B1field','rounded'],[[50],[70],[80],[90]]],[['type','name'],[['cpmg'],['Rex'],['cest']]]]#[['w1type','numb'],[[3],[6],[15],[25],[50]]]]
+        filters2=[[['conc','value'],[['2.475'],['9.9']]],[['TR','name'],[['T'],['X']]],[['B1field','rounded'],[[50],[70],[80],[90]]],[['type','name'],[['cpmg'],['Rex'],['cest']]]]#[['w1type','numb'],[[3],[6],[15],[25],[50]]]]
+        selset=[]
+        q=0
+        explist=[]
+        for j,i in enumerate(expcnd):
+            for l,k in enumerate(i):
+                selsetx=[j]
+              #  print j,i,l,k
+                for n,m in enumerate(filters2):
+                    selsetx.append([p for p,o in enumerate(m[1]) if k[m[0][0]] in o][0])
+                selset.append(selsetx)
+                explist.append(q)
+                q+=1
+        filt=[]
+        aa=selset
+       # print aa
+       # print len(aa), 'aa'
+        bb=set(tuple(ix) for ix in selset)
+        bb=[list(b) for b in aa]
+        seldatasets=list(np.arange(len(aa)))
+       # print seldatasets, 'seldatasets', aa
+        inclfx=[]
+        for l,i in enumerate(bb):
+            inclf=[]
+            for k,j in enumerate(i):
+                inclf.append([filters[k][0][0],filters[k][0][1],filters[k][1][j]])
+                    #inclf.append([filters[k-1][0][0],filters[k-1][0][1],filters[k-1][1][j]])
+                inclfx.append(inclf)
+            a,b1,b2,c,e=paramsx.getallparandbnds(praxs1,['p','k','dw','R20500','R2mult'],inclfilt=inclf)
+            f=flatten([np.array(e[m][:-1])+np.sum([k for k in [0]+[e[j][-1] for j,i in enumerate(e) if j < len(e)-1]][0:(l+1)]) for m,l in enumerate(np.arange(len(e)))])
+            filt.append(f)
+        timedat=[flatten(timedat,levels=1)[i] for i in seldatasets]
+        rawdata=[flatten(rawdata,levels=1)[i] for i in seldatasets]
+        errd=[flatten(errd,levels=1)[i] for i in seldatasets]
+        field=[flatten(field,levels=1)[i] for i in seldatasets]
+        field2=[flatten(field2,levels=1)[i] for i in seldatasets]
+        field3=[flatten(field3,levels=1)[i] for i in seldatasets]
+        tr=[flatten(tr,levels=1)[i] for i in seldatasets]
+        
+        equationtype=[flatten(equationtype,levels=1)[i] for i in seldatasets]
+        #paramsx.getallparandbnds()
+        a,b1,b2,c,e=paramsx.getallparandbnds(praxs1,['p','k','dw','R20500','R2mult'],inclfilt=[])
+        f=flatten([np.array(e[m][:-1])+np.sum([k for k in [0]+[e[j][-1] for j,i in enumerate(e) if j < len(e)-1]][0:(l+1)]) for m,l in enumerate(np.arange(len(e)))])
+        poscolll.append(poscoll)
+        if drawonly == 0:
+            sojetzt,allrescoll=fitcpmg4(path2020,savstatdir,praxs1,timedat,rawdata,field,errd,precalc,equationtype,conditions,filenamsav,resnaml, poscolll,moreconditions,paramsx,filt)
+        else:
+            dwbsetp=[]
+            setdwb=0
+            for i in np.arange(len(timedat)):
+                for j in np.arange(len(flatten(timedat[i]))):
+                    dwbsetp.append(setdwb)
+                setdwb+=1
+            par7=np.array(np.array(dwbsetp).astype('int'))
+       #     print timedat, 'timedat'
+        #    print rawdata, 'rawdata'
+        #    print field, 'field'
+         #   print errd, 'errd'
+            fittedcurve,chsq0,chsq1,chsq2,chsq3=printrd(praxs1,timedat,rawdata,field,errd,equationtype,par7,paramsx,filt)
+            print "overall chi quare", chsq2
+            for j,i in enumerate(seldatasets):
+                print i, 'datasetno', chsq0[j], equationtype[j][0]
+       # print chsq0, chsq1, chsq2, chsq3
+        if drawonly == 0:
+            try:
+                resultcolll.append(sojetzt)
+                allresultcoll.append(allrescoll)
+            except:
+                print 'ugh1'
+        else:
+            for j in poscoll:
+                for k,i in enumerate(seldatasets): #fittedcurve:
+                    spinsystems[j].datasets[i].fit=fittedcurve[k]
+    if drawonly == 0:
+        return resultcolll, resnaml, poscolll, spinsystems, allresultcoll
+    else:
+        return spinsystems#else:
+
 def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir,files,filenamsav,paramsx,drawonly,cond):
     """ This function prepares the global fit and converts data structures where
     appropriate.
@@ -494,8 +639,8 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
                 explist.append(q)
                 q+=1
         filt=[]
+        
         aa=selset
-       # print aa
        # print len(aa), 'aa'
         bb=set(tuple(ix) for ix in selset)
         bb=[list(b) for b in aa]
@@ -540,7 +685,6 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
             par7=np.array(np.array(dwbsetp).astype('int'))
             fittedcurve,chsq0,chsq1,chsq2,chsq3=printrd(praxs1,timedat,\
                             rawdata,field,errd,equationtype,par7,paramsx,filt)
-            print "overall chi quare", chsq2
             for j,i in enumerate(seldatasets):
                 print i, 'datasetno', chsq0[j], equationtype[j][0]
         if drawonly == 0:
@@ -586,10 +730,21 @@ def evaluaterdfit(path2020,savstatdir,praxs1,setparameters2,runnum,paramsx,preca
     temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9,temp10,temp11\
     ,temp12,temp13,temp14,temp15,temp16,temp17,temp18,cond=hkio.\
     loadeverything(savstatdir,[filenamsav],0,decoupl=0)
+    print 'pointa'
     ss=runfit4(praxs1,[],selresidues,precalc2,resnam,conditions,path2020,savstatdir,\
     databasis,filenamsav+str(runnum),paramsx,1,cond)
     return ss
     #return spinsystems,fittedcurve
 
-   
+def evaluaterdfitold(path2020,savstatdir,praxs1,setparameters2,runnum,paramsx,precalc2):
+    time.sleep(runnum/10)
+    databasis,datapath,selresidues,conditions,filenamsav=setparameters2
+    #selresidues=[]
+    os.chdir(datapath)
+    resultcoll=[];poscoll=[];resnam=[]
+    temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9,temp10,temp11,temp12,temp13,temp14,temp15,temp16,temp17,temp18,cond=hkio.loadeverything(savstatdir,[filenamsav],0,decoupl=0)
+   # print cond
+    ss=runfit4(praxs1,[],selresidues,precalc2,resnam,conditions,path2020,savstatdir,databasis,filenamsav+str(runnum),paramsx,1,cond)
+    
+    return ss   
    

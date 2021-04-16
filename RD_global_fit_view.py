@@ -18,13 +18,15 @@ import datamodelfunctions as mainfuncts
 #import hkwatch
 
 
-linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
 linuxss='/home/hanskoss/scripts/relaxproc/savstat'
+
 windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
 linux='/home/hanskoss/scripts/github/2021Structure_CadhMultisite/exptl_data/'
+linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
+
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
-linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
+##linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
 windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
 savstatdir=linuxss
 path2020=linux#linux#windows
@@ -115,6 +117,8 @@ namresults='multix13_NEW_pfr_STU_errb_'
 namresults='multix13_NEW_pfr_STU_err3f_'
 namresults='multix13_NEW_pfr_STU_errb3_'
 namresults='multix13_NEW_pfr_FINAL_stage2b'
+namresults='FINAL_stage2d'
+namresults='FINAL_stage3_'
 #namresults='multix13_NEW_pfr_STU_FINAL_'
 ###namresults='multix13_NEW_pfr_STU_err3g_'
 #namresults='multix13_NEW_pfr_S2_'
@@ -259,7 +263,7 @@ import hkwatch
 hkwatch.parameterplotter2(PropAxesColl,ParameterColl2,[2],cost=costcoll2,lenresults=3,resnam=reslalmall,conc=['2.475','9.9'],figno=106) #32
 #%%
 pbrat_collect=[]
-for mm in np.arange(80):
+for mm in np.arange(16):
     pb_lo=[];pb_hi=[];pc_lo=[];pc_hi=[];k12_lo=[];k12_hi=[];k13_lo=[];k13_hi=[];k23_lo=[];k23_hi=[];pb_rat=[];pc_rat=[];k12r=[];k13r=[];
     for n in np.arange(mm):
         pb1=flatten(ParameterColl2[n].getparandbnds(PropAxesColl,'p',inclfilt=[['sites','name','B'],['conc','value','2.475']]))[0]

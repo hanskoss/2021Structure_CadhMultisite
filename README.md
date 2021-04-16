@@ -25,4 +25,4 @@ Approximations and functions describing relaxation dispersion experiment. Relate
 theoretical publications.  
 
 *** exptl_data ***  
-experimental data. The path "path2020" to this folder has to be set in goglobalfitfuntions.py and goglobalfit.py  
+experimental data. The path "path2020" to this folder has to be set in goglobalfit.py  

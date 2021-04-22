@@ -13,6 +13,7 @@ from hkimports2 import flatten
 from hkimports2 import np
 import copy
 from hkimports2 import multiprocessing
+import multiprocessing
 
 linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
 linux='/home/hanskoss/scripts/Github/2021Structure_CadhMultisite/exptl_data/'
@@ -78,7 +79,90 @@ def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savs
     return PropAxesColl,ParameterColl2, costcoll, resultcoll,cond
 # attempt to set up a completely new run from scratch.
 
+def produceindivplots(path2020,savstatdir,namresults,reslallx,resnallx,parbdslistaxallfx,namout,mode,k231,k232):
+    #print 'a'
+    for pickthis in np.arange(len(reslallx)):
+     #   print 'b'
+        reslall=[reslallx[pickthis]]
+        resnall=[resnallx[pickthis]]
+        pickthese=[0]
+      #  print 'c'
+        PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in enumerate(reslall) if y in pickthese],[x for y,x in enumerate(resnall) if y in pickthese])
+        parbdslistaxallf=[parbdslistaxallfx[pickthis]]
+        paramsxx=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate(parbdslistaxallf) if y in pickthese],1,8000,100,900,k231,k232,0.005,0.1)
+        conditions=[0,[1,0,0,5,5]]
+        #setparameters2=['combo10l.dat','C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\',[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults]
+        poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr, intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+        costcoll=[i.cost for i in resultcoll]
+        resultcoll=[resultcoll[np.argsort(costcoll)[0]]]
+        ParameterColl6=mainfuncts.resc2param(PropAxesColl,paramsxx,resultcoll,mode)
+        for nn in [0]:#np.arange(3):
+            namresultsOUT=namout+str(resnall[0])+'_'+str(nn)+'_'
+            setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresultsOUT,0]
+            hkfit2.parallelfit3(path2020,savstatdir,setparameters3,0,ParameterColl6[nn],PropAxesColl)
+            
+reslall=['A14','A30','A32','A37','A38','A43','A45','A50','A53','A54','A55','A73','A77','A78','A86']
+resnall=[14,30,32,37,38,43,45,50,53,54,55,73,77,78,86]
+pickthese=[1,2,3,4,6,7,8,9,11,12,13,14]
 
+DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-22500,-6855], [-6827,-6206]],\
+                  [[-1, 1], [2640, 8675], [1669, 1836]],\
+                  [[-1, 1], [-26000, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-26000, 0], [-24000, -100]],\
+                  [[-1, 1], [-790,-718], [773, 850]],\
+                  [[-1, 1], [-26000, 0], [-471,-428]],\
+                  [[-1, 1], [-0, 26000], [-13000, 13000]],\
+                  [[-1, 1], [-26000, 0], [-2255,-2050]],\
+                  [[-1, 1], [-2711,-2465], [-3760,-3418]],\
+                  [[-1, 1], [-133,-121], [2037, 2241]],\
+                  [[-1, 1], [-26000, 0], [1000, 13000]],\
+                  [[-1, 1], [0, 26000], [1000, 13000]],\
+                  [[-1, 1], [7279, 13742], [7251, 7976]],\
+                  [[-1, 1], [-26000, 26000],[1000, 13000]]]
+DeltaOmegaParametersBoundaries=[[[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]],\
+           [[-1, 1], [-26000,26000], [-13000, 13000]]]
+
+reslall=['A29','A30','A31','A32','A33','A34','A52','A53','A54','A78','A81','A82','A83','A84','A86']
+resnall=[29,30,31,32,33,34,52,53,54,78,81,82,83,84,86]
+#produceindivplots(path2020,savstatdir,'FINAL_stage4_',reslall,resnall,DeltaOmegaParametersBoundaries,namout,5,1,2)
+
+processes=[]
+pn=0
+outnum=1
+numrep=len(reslall)
+
+for outnum in np.arange(1):
+    pn0=list([pn])[0]
+    for runnum in np.arange(numrep):
+        print 'run ', str(outnum*numrep+runnum)
+        #p=parallelfit(setparameters,runnum)
+        namout='FINAL_stage4_indiv_'+str(runnum)+'_'
+        #produceindivplots(path2020,savstatdir,'FINAL_stage4_',[reslall[runnum]],[resnall[runnum]],[DeltaOmegaParametersBoundaries[runnum]],namout,5,1,2)
+        p=multiprocessing.Process(target=produceindivplots, args=(path2020,savstatdir,'FINAL_stage4_',[reslall[runnum]],[resnall[runnum]],[DeltaOmegaParametersBoundaries[runnum]],namout,5,1,2))
+        processes.append(p)
+        print 'a'
+        processes[pn].start()
+        pn+=1
+    pn=list([pn0])[0]
+    for runnum in np.arange(numrep):
+        processes[pn].join()
+        pn+=1
+    print 'really done with ', str(outnum*numrep+numrep), 'runs'           
 #%%
 """
 These calculations do not restrict delta omega based on field dependent shifts (control)

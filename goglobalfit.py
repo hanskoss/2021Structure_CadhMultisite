@@ -60,7 +60,8 @@ def readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savs
         enumerate(reslall) if y in pickthese],[x for y,x in enumerate(resnall)\
                  if y in pickthese])
     ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate\
-        (DeltaOmegaParametersBoundaries) if y in pickthese],1,10000,100,900,1,2,0.005,0.5)
+        (DeltaOmegaParametersBoundaries) if y in pickthese],1,10000,100,900,1,900,0.005,0.5) #2 or 900
+    
     #DEL?#setparameters2=['combo10l.dat','C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\',[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,namresults]
     #DEL?#namresults=namresults+str(resnall[0])+'_'+str(nn)+'_'
     
@@ -336,7 +337,8 @@ are similar enough to be merged because the difference between them is much
 smaller than the arising from the subsequent error calculation"""
     
 conditions=[0,[1,0,0,5,5]]
-setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_',0]
+setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage3_23_',0]
+#%%
 mainfuncts.parallelmultifit4(path2020,savstatdir,setparameters3,1,16,ParameterColl6,PropAxesColl)
 
 #%%
@@ -347,11 +349,11 @@ parameter sets from randomly resampled data are calculated. This gives a
 total of 80 paarametersets to then report the error by calculating the standard
 deviation for each parameter """
 dataname=cond[-1][-1]
-setparameters2=[dataname,path2020,[x for y,x in enumerate(reslall) if y in pickthese],conditions,'FINAL_stage3_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
+setparameters2=[dataname,path2020,[x for y,x in enumerate(reslall) if y in pickthese],conditions,'FINAL_stage3_23_'] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
 for selset in np.arange(16):
     ss=hkfit2.evaluaterdfit(path2020,savstatdir,PropAxesColl,setparameters2,1,ParameterColl6[selset],0)
-    hkio2.savss(savstatdir,ss,'FINAL_stage3x_'+str(selset))
-#%%
+    hkio2.savss(savstatdir,ss,'FINAL_stage3_23x_'+str(selset))
+
 conditions=[0,[1,0,0,5,5]]
 processes=[]
 """ The parallelization for this process is explicitly coded because each of 
@@ -364,7 +366,7 @@ for outnum in np.arange(outnum):
     pn0=list([pn])[0]
     for runnum in np.arange(numrep):
         print 'run ', str(outnum*numrep+runnum)
-        setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage4_','FINAL_stage3x_'+str(runnum)]
+        setparameters3=['combo10l.dat',path2020,[[x for y,x in enumerate(reslall) if y in pickthese]],conditions,'FINAL_stage4_23_','FINAL_stage3_23x_'+str(runnum)]
         p=multiprocessing.Process(target=hkfit2.parallelfit3, args=(path2020,savstatdir,setparameters3,outnum*numrep+runnum,ParameterColl6[runnum],PropAxesColl))
         processes.append(p)
         processes[pn].start()

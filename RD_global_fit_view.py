@@ -118,7 +118,7 @@ namresults='multix13_NEW_pfr_STU_err3f_'
 namresults='multix13_NEW_pfr_STU_errb3_'
 namresults='multix13_NEW_pfr_FINAL_stage2b'
 namresults='FINAL_stage2d'
-namresults='FINAL_stage3_'
+namresults='FINAL_stage4_'
 #namresults='multix13_NEW_pfr_STU_FINAL_'
 ###namresults='multix13_NEW_pfr_STU_err3g_'
 #namresults='multix13_NEW_pfr_S2_'
@@ -140,11 +140,11 @@ for pn in np.arange(94):
     print np.average(pnl), np.std(pnl)
 import csv
 #with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_final16.csv','w') as f:
-with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_errg.csv','w') as f:
+with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage4.csv','w') as f:
     write = csv.writer(f)
     write.writerows(alldat)
 
-with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_errgcost.csv','w') as f:
+with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage4cost.csv','w') as f:
     write = csv.writer(f)
     write.writerows([costcoll])
 
@@ -188,7 +188,7 @@ import globalfitfunctions as hkfit2
 #selnam=[reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A30','A32','A37']#reslalmall[0],reslalmall[1]] #7 symbolic
 selnam=['A38','A45','A38']
-selnam=['A30']#,'A32','A37','A38','A45','A50','A53','A54','A73','A77','A78','A86']
+selnam=['A30','A32','A37','A38','A45','A50','A53','A54','A73','A77','A78','A86']
 #selnam=['A73']
 #selnam=['A73','A50','A86']
 #selnam=['A53','A50','A73']
@@ -263,7 +263,7 @@ import hkwatch
 hkwatch.parameterplotter2(PropAxesColl,ParameterColl2,[2],cost=costcoll2,lenresults=3,resnam=reslalmall,conc=['2.475','9.9'],figno=106) #32
 #%%
 pbrat_collect=[]
-for mm in np.arange(16):
+for mm in np.arange(80):
     pb_lo=[];pb_hi=[];pc_lo=[];pc_hi=[];k12_lo=[];k12_hi=[];k13_lo=[];k13_hi=[];k23_lo=[];k23_hi=[];pb_rat=[];pc_rat=[];k12r=[];k13r=[];
     for n in np.arange(mm):
         pb1=flatten(ParameterColl2[n].getparandbnds(PropAxesColl,'p',inclfilt=[['sites','name','B'],['conc','value','2.475']]))[0]
@@ -291,11 +291,6 @@ for mm in np.arange(16):
         k23_hi.append(flatten(ParameterColl2[n].getparandbnds(PropAxesColl,'k',inclfilt=[['sites','name','B'],['sites2','name','C'],['conc','value','9.9']]))[0])
     
 
-    if mm > 1:
-        #print np.percentile(np.sort(pb_lo),100-68-(100-68)/2), np.percentile(np.sort(pb_lo),100-(100-68)/2), '!'
-        #print np.percentile(np.sort(pb_rat),100-68-(100-68)/2)#-np.percentile(np.sort(pb_rat),100-(100-68)/2)
-      #  print np.percentile(np.sort(k12_lo),100-68-(100-68)/2), np.percentile(np.sort(k12_lo),100-(100-68)/2)
-        print np.percentile(np.sort(k12_hi),100-68-(100-68)/2), np.percentile(np.sort(k12_hi),100-(100-68)/2)
         #pbrat_collect.append(np.percentile(np.sort(pb_rat),100-68-(100-68)/2)-np.percentile(np.sort(pb_rat),100-(100-68)/2))
         
 

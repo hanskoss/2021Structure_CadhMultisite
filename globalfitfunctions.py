@@ -15,7 +15,7 @@ import preprocessing as prepro    #used preprocess - passdatatofit previously
 import iofunctions as hkio
 import RDmath as hkRDmath
 #print 1
-
+fineres=1
 #[  2.76800000e-03  -1.47694090e+03   2.07130011e-01   8.57390488e+00]
 #linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
 #windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
@@ -134,7 +134,7 @@ def errfunctg3(parax,x,exp_data,m,dwbset,err,g,fl):
 def printrd(praxs1,x,exp_data,m,err,g,dwbset,par,fl):
     """This function recalculates the theoretical value and chi square from
     parameters and experimental data."""
-    value=[]
+    value=[];valuealt=[]
     chicoll=[]
     chicoll2=[]
     a,b1,b2,c,e=par.getallparandbnds(praxs1,['p','k','dw','R20500','R2mult'],inclfilt=[])
@@ -145,10 +145,16 @@ def printrd(praxs1,x,exp_data,m,err,g,dwbset,par,fl):
         parnocoll.append(thisset)
     paramno=len(set(flatten(parnocoll)))
     cestchi=[];rdchi=[]
+    xalt=[list(np.arange(np.min(xi),np.max(xi),20)) for xi in x]
     for l,i in enumerate(fl):
         a=[par1[j] for j in i]
         thisset=[j for j in i]
         val=np.array((flatten([multifunctg2(a,x[l],m[l],dwbset[l],g[l])])))
+        """ comment in the following line if a higher resolution CPMG curve is required"""
+        if fineres == 1:
+            #print len([m[l][0] for xa in xalt]), len([g[l][0] for xa in xalt]), len(xalt[l])
+            valalt=np.array((flatten([multifunctg2(a,xalt[l],[m[l][0] for xa in xalt[l]],dwbset[l],[g[l][0] for xa in xalt[l]])])))
+        valuealt.append(valalt)
         value.append(val)
         if g[l][0] > 10:
             cestchi.append((np.array(exp_data[l])-np.array(val))/(np.array(err[l])))
@@ -164,6 +170,9 @@ def printrd(praxs1,x,exp_data,m,err,g,dwbset,par,fl):
     x2=np.sum((np.sqrt(2)*np.array(flatten(cestchi))*(1/np.sqrt(len(flatten(exp_data))-paramno)))**2)/2
     x3=((len(flatten(rdchi)))/(len(flatten(cestchi))+len(flatten(rdchi))))
     x4=np.sum((np.sqrt(2)*np.array(flatten(rdchi))*(1/np.sqrt(len(flatten(exp_data))-paramno)))**2)/2
+    if fineres == 1:
+        value=valuealt
+        #print value, 'value'
     return value, chicoll,chicoll2, (x4*x1+x3*x2)*2,(np.array(flatten(err0))/\
             (np.array(flatten(err))*np.sqrt(len(flatten(exp_data))-paramno)))
 
@@ -281,6 +290,7 @@ def fitcpmg4(praxs1,timedat,rawdata,field,err,mode,equationtype,conditions,savst
             print "unfeasable result"
 #    try:
     for k in np.arange(maincalcatt):
+        print len(par1), len(par2), len(flatten(par2)), 'well'
         res=optimize.least_squares(errfunctg3,par1,max_nfev=maincalclen,\
             bounds=(boundsl,boundsh),args=(par2,par3,par6,par7,errvalpar,gpar,\
             fl),method='trf',jac='3-point',x_scale='jac')
@@ -427,6 +437,7 @@ def reshuffle(ss,reslalmall,shuffletype):
                                 errlist=np.array([np.average([ds.yerr1,ds.yerr2]),np.average([ds.yerr1,ds.yerr2])])
                         else:
                             errlist = 1
+                        print ds.fit, allresid[dt][q][z], errlist, ds.fit+allresid[dt][q][z]*errlist, 'reshuffled'
                         ss[ssn].datasets[dsn].reshufy=ds.fit+allresid[dt][q][z]*errlist
                         if ds.datatype == 'Rex':
                             ss[ssn].datasets[dsn].reshufy=[ss[ssn].datasets[dsn].reshufy[0] for i in np.arange(len(ss[ssn].datasets[dsn].reshufy))]
@@ -450,13 +461,14 @@ def runfit4b(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdi
     global spinsystems
 
     moreconditions=[ctd,selresidues,precalc,resnam,files]
+    print 'gethere'
     if precalc != 0 and precalc != 1:
         spinsystems=hkio.loadss(savstatdir,precalc)
         reslalmall=selresidues[0]#[reslall[i] for i in pickthese]
         shuffletype=[['cpmg','dataset'],['Rex','dataset'],['cest','each']]
         spinsystems=reshuffle(spinsystems,reslalmall,shuffletype)
     elif precalc == 1:
-        
+        print 'and'
         reslalmall=selresidues
    #     print reslalmall, 'reslalmall'
         spinsystems,setlabels=prepro.launch(path2020,files)
@@ -482,6 +494,8 @@ def runfit4b(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdi
  #       print 'path'
   #      print path2020,files,'!!!!!!'
         spinsystems,setlabels=prepro.launch(path2020,files)
+        print spinsystems[35].name, spinsystems[35].datasets[0].rcpmg
+        
     #    print vars(spinsystems[55].datasets[5])
             #print i.xlabel
   #  print 'p2'
@@ -560,7 +574,8 @@ def runfit4b(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdi
         #    print field, 'field'
          #   print errd, 'errd'
             fittedcurve,chsq0,chsq1,chsq2,chsq3=printrd(praxs1,timedat,rawdata,field,errd,equationtype,par7,paramsx,filt)
-            print "overall chi quare", chsq2
+      #      print fittedcurve, '!!!!!'
+       #     print "overall chi quare", chsq2
             for j,i in enumerate(seldatasets):
                 print i, 'datasetno', chsq0[j], equationtype[j][0]
        # print chsq0, chsq1, chsq2, chsq3
@@ -600,6 +615,8 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
         spinsystems=reshuffle(spinsystems,reslalmall,shuffletype)
     elif precalc == 0:
         spinsystems,setlabels=prepro.launch(path2020,files)
+        print spinsystems[35].name, spinsystems[35].datasets[0].rcpmg
+        
    # print spinsystems[57].datasets[13].xlabel
     resultcolll=[];
     poscolll=[]
@@ -617,14 +634,28 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
         resnaml,timedat,rawdata,errd,field,field2,field3,tr,equationtype,poscoll,expcnd=prepro.passdatatofitn(spinsystems,selectdatn,precalc)
         """hard-coded filters, has to be modified for other experimental
         combinations"""
-        filters=[[['residues','name'],[[rn] for rn in resnaml]],[['conc','value'],\
-                [['2.475'],['9.9']]],[['TR','name'],[['T'],['X']]],\
-                [['B1field','rounded'],[[50],[70],[80],[90]]],\
-                [['type','name'],[['cpmg'],['Rex'],['cest']]]]
-        filters2=[[['conc','value'],[['2.475'],['9.9']]],\
-                  [['TR','name'],[['T'],['X']]],\
-                  [['B1field','rounded'],[[50],[70],[80],[90]]],\
-                  [['type','name'],[['cpmg'],['Rex'],['cest']]]]
+        setprotoncpmg=1
+        if setprotoncpmg == 1:
+            
+            filters=[[['residues','name'],[[rn] for rn in resnaml]],[['conc','value'],\
+                    [['2.475'],['9.9']]],[['TR','name'],[['T'],['X']]],\
+                    [['B1field','rounded'],[[500],[600],[800],[900]]],\
+                    [['type','name'],[['cpmg'],['Rex'],['cest']]]]
+            filters2=[[['conc','value'],[['2.475'],['9.9']]],\
+                      [['TR','name'],[['T'],['X']]],\
+                      [['B1field','rounded'],[[500],[600],[800],[900]]],\
+                      [['type','name'],[['cpmg'],['Rex'],['cest']]]]
+        else:
+            filters=[[['residues','name'],[[rn] for rn in resnaml]],[['conc','value'],\
+                    [['2.475'],['9.9']]],[['TR','name'],[['T'],['X']]],\
+                    [['B1field','rounded'],[[50],[70],[80],[90]]],\
+                    [['type','name'],[['cpmg'],['Rex'],['cest']]]]
+            filters2=[[['conc','value'],[['2.475'],['9.9']]],\
+                      [['TR','name'],[['T'],['X']]],\
+                      [['B1field','rounded'],[[50],[70],[80],[90]]],\
+                      [['type','name'],[['cpmg'],['Rex'],['cest']]]]
+            
+            
         selset=[]
         q=0
         explist=[]
@@ -685,6 +716,7 @@ def runfit4(praxs1,ctd,selresidues,precalc,resnam,conditions,path2020,savstatdir
             par7=np.array(np.array(dwbsetp).astype('int'))
             fittedcurve,chsq0,chsq1,chsq2,chsq3=printrd(praxs1,timedat,\
                             rawdata,field,errd,equationtype,par7,paramsx,filt)
+       #     print fittedcurve, 'fittedcurve'
             for j,i in enumerate(seldatasets):
                 print i, 'datasetno', chsq0[j], equationtype[j][0]
         if drawonly == 0:

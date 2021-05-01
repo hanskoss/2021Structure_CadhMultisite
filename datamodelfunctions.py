@@ -23,7 +23,7 @@ from hkimports2 import np
 import itertools
 import multiprocessing
 
-setprotoncpmg=0
+setprotoncpmg=1
 
 class Mapping(dict):
     """this mapping enables us to define dictionary-like objects"""
@@ -427,12 +427,20 @@ def coupllists(a,b):
 def parammake(PropAxesColl,parbdslistb,parbdslista,k12min,k12max,k13min,k13max,k23min,k23max,pmin,pmax):
     """create initial parameters and boundaries as needed (requires editing)
     (requires optimization and simplification in an update"""
-    R20500TRmin=2
-    R20500TRmax=11
-    R20500nTRmin=2
-    R20500nTRmax=12
-    R2multmin=1
-    R2multmax=3
+    if setprotoncpmg == 0:
+        R20500TRmin=2
+        R20500TRmax=11
+        R20500nTRmin=2
+        R20500nTRmax=12
+        R2multmin=1
+        R2multmax=3
+    else:
+        R20500TRmin=2
+        R20500TRmax=40
+        R20500nTRmin=2
+        R20500nTRmax=40
+        R2multmin=1
+        R2multmax=3
     
     paramsxx=[]
     for u in np.arange(100):

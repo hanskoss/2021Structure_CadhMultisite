@@ -22,8 +22,8 @@ windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
 linuxss='/home/hanskoss/scripts/relaxproc/savstat'
 
 windowsss='C:\\Users\\Hans\\Desktop\\TRANSFER\\relaxproc\\savstat'
-linux='/home/hanskoss/scripts/github/2021Structure_CadhMultisite/exptl_data/'
-linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
+linux='/home/hanskoss/scripts/Github/2021Structure_CadhMultisite/exptl_data/'
+#linux='/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
 
 windows='C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\'
 ##linuxss='/home/hanskoss/scripts/Cadh11_multis/savstat'
@@ -118,7 +118,15 @@ namresults='multix13_NEW_pfr_STU_err3f_'
 namresults='multix13_NEW_pfr_STU_errb3_'
 namresults='multix13_NEW_pfr_FINAL_stage2b'
 namresults='FINAL_stage2d'
-namresults='FINAL_stage4_'
+namresults='FINAL_stage3_23_'
+#%%
+namresults='FINAL_stage3_indiv_restrGmore_'
+namresults='FINAL_stage3_23_indiv_'
+namresults='FINAL_stage3_indiv_'
+namresults='FINAL_stage3_indiv_restrkp_'
+namresults='FINAL_stage3_indiv_restrall_'
+#####namresults='FINAL_stage4_'
+#FINAL_stage2d
 #namresults='multix13_NEW_pfr_STU_FINAL_'
 ###namresults='multix13_NEW_pfr_STU_err3g_'
 #namresults='multix13_NEW_pfr_S2_'
@@ -126,9 +134,249 @@ namresults='FINAL_stage4_'
 
 #namresults='multix13_NEW_pfr_M2_err_'
 conditions=[0,[1,3,3,3,3]]
-
-PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savstatdir,namresults,conditions)
+namresults='FINAL_stage3_23_'
+namresults='protonglobal5_'
+pick=[0]
+dw31=[];dwc31=[];dw82=[];dwc82=[];pb=[];pc=[];kex=[];k13=[]; cost=[]
+PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pick,DeltaOmegaParametersBoundaries,savstatdir,namresults,conditions)
+print len(resultcoll)
+for whichres in np.arange(len(resultcoll)):
+    pb.append(resultcoll[whichres].x[0])
+    pc.append(resultcoll[whichres].x[2])
+    kex.append(resultcoll[whichres].x[4])
+    k13.append(resultcoll[whichres].x[6])
+    rn=0
+    dw31.append(resultcoll[whichres].x[10+rn*2])
+    dwc31.append(resultcoll[whichres].x[11+rn*2])
+    rn=10
+    dw82.append(resultcoll[whichres].x[10+rn*2])
+    dwc82.append(resultcoll[whichres].x[11+rn*2])
+    cost.append(resultcoll[whichres].cost)
+for itemx in [pb, pc, kex, k13, dw31, dwc31, dw82, dwc82, cost]:
+    print np.average(itemx), np.std(itemx)
+print np.min(cost)
+#%%
 reslalmall=[reslall[i] for i in pickthese]
+#%%
+namresultslist=['FINAL_stage3_indiv_','FINAL_stage3_23_indiv_','FINAL_stage3_indiv_restrkp_','FINAL_stage3_indiv_restrall_']
+zx=[]
+for x in namresultslist:
+    z=[]
+    for y in np.arange(15):
+        namresults=x+str(y)+'_0_'
+        #print namresults
+        poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+            results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+            intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+        z.append(np.round(resultcoll[0].cost,2))
+    zx.append(z)
+    print np.average(z)
+    
+from matplotlib import pyplot as plt
+reslall=['A29','A30','A31','A32','A33','A34','A52','A53','A54','A78','A81','A82','A83','A84','A86']
+#fullnamlist=['Ser','Gly', 'Trp', 'Val', 'Trp', 'Asn', 'Gln', 'Phe', 'Phe', 'Val', 'Ile', 'Glu', 'Glu', 'Tyr', 'Thr', 'Gly', 'Pro', 'Asp', 'Pro', 'Val', 'Leu', 'Val', 'Gly', 'Arg', 'Leu', 'His', 'Ser', 'Asp', 'Ile', 'Asp', 'Ser', 'Gly', 'Asp', 'Gly', 'Asn', 'Ile', 'Lys', 'Tyr', 'Ile', 'Leu', 'Ser', 'Gly', 'Glu', 'Gly', 'Ala', 'Gly', 'Thr', 'Ile', 'Phe', 'Val', 'Ile', 'Asp', 'Asp', 'Lys', 'Ser', 'Gly', 'Asn', 'Ile', 'His', 'Ala', 'Thr', 'Lys', 'Thr', 'Leu', 'Asp', 'Arg', 'Glu', 'Glu', 'Arg', 'Ala', 'Gln', 'Tyr', 'Thr', 'Leu', 'Met', 'Ala', 'Gln', 'Ala', 'Val', 'Asp', 'Arg', 'Asp', 'Thr', 'Asn', 'Arg', 'Pro', 'Leu', 'Glu', 'Pro', 'Pro', 'Ser', 'Glu', 'Phe', 'Ile', 'Val', 'Lys', 'Val', 'Gln', 'Asp']
+plt.rcParams.update({'font.size': 14})
+lab=['Asp29','Ser30','Gly31','Asp32','Gly33','Asn34','Asp52','Lys53','Ser54','Val78','Asp81','Thr82','Asn83','Arg84','Leu86']
+y1=zx[0];y2=zx[1];y3=zx[2];y4=zx[3]
+plt.figure(700)
+plt.clf()
+plt.bar(np.arange(len(lab))-0.2,y1,width=0.15,label='free fit; '+r'$\overline{\chi^2}$'+' = '+str(np.round(np.average(y1),2)),color='blue')
+plt.bar(np.arange(len(lab))-0.2+0.35/2,y2,width=0.15,label='free fit, but k'+r'$_2$$_3$'+'=0; '+r'$\overline{\chi^2}$'+' = '+str(np.round(np.average(y2),2)),color='cyan')
+plt.bar(np.arange(len(lab))+0.35-0.2,y3,width=0.15,label='restrained k, p, but '+r'$\Delta\omega$'+' free; '+r'$\overline{\chi^2}$'+' = '+str(np.round(np.average(y3),2)),color='red')
+plt.bar(np.arange(len(lab))+0.35-0.2+0.35/2,y4,width=0.15,label='restrained k, p, '+r'$\Delta\omega$; '+r'$\overline{\chi^2}$'+' = '+str(np.round(np.average(y4),2)),color='black')
+ind=np.arange(len(lab))
+plt.xticks(ind,tuple(['','','','']))
+plt.xticks(ind,tuple([fullnamlist[int(xx[1]+xx[2])]+xx[1]+xx[2] for xx in reslall]))
+plt.setp(plt.gca().get_xticklabels(), rotation=70)
+plt.legend()
+plt.ylabel(r'$\chi^2$')
+plt.tight_layout()
+
+
+#%%
+reslallx=['A31','A32','A33','A34','A44','A45','A52','A59','A72','A81','A82','A83','A84']
+def gethcpmgres(now,reslallx,cnt,nrx):
+    megacst=[]
+    for rs in np.arange(3):#len(reslallx)):
+        
+        cst=[]
+        
+        namresults=now+str(rs)+'_'+str(nrx)+'_'
+        poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+            results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+            intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+       # print resultcoll[0].x
+        cst.append(resultcoll[0].cost)
+        for rs2 in np.arange(cnt):
+            namresults=now+'s_'+str(rs2)+'_'+str(rs)+'_0_'
+            namresults=now+str(rs)+'_'+str(nrx)+'_err'
+            #print namresults
+            poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+                results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+                intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+            
+            print rs, reslallx[rs], np.average([resultcoll[nn].cost for nn in np.arange(len(resultcoll))]),np.std([resultcoll[nn].cost for nn in np.arange(len(resultcoll))])
+            cst.append([np.average([resultcoll[nn].cost for nn in np.arange(len(resultcoll))]),np.std([resultcoll[nn].cost for nn in np.arange(len(resultcoll))]),np.min([resultcoll[nn].cost for nn in np.arange(len(resultcoll))])])
+        megacst.append(cst)
+    return megacst
+    #for megno,meg in enumerate(megacst):
+    #    print meg[1:]
+    #    print now, reslallx[megno], meg[0], np.average(meg[1:]), np.std(meg[1:])#, meg[0]-np.min(meg[1:])#np.median(meg[1:]), np.average(meg[1:]), np.std(meg[1:])
+
+cnt=1
+now='FINAL_indiv_proton_lock2_'
+x1=gethcpmgres(now,reslallx,cnt,1)
+now='FINAL_indiv_proton_omrelax_'
+x2=gethcpmgres(now,reslallx,cnt,2)
+for i, j in enumerate(x1):
+    print j[1][0]-j[1][1],j[1][0]+j[1][1], x2[i][1][0]-x2[i][1][1], x2[i][1][0]+x2[i][1][1], x2[i][1][2]
+#%%
+now='FINAL_indiv_proton_relax_'
+gethcpmgres(now,reslallx,cnt)
+now='FINAL_indiv_proton_23lock_'
+gethcpmgres(now,reslallx,cnt)
+now='FINAL_indiv_proton_23relax_'
+gethcpmgres(now,reslallx,cnt)
+
+    
+#%%
+namresults='protonglobal6_'
+
+#reslall=['A31']
+reslall=['A31','A32','A33','A34','A44','A45','A52','A59','A72','A81','A82','A83','A84']
+
+selnam=reslall
+resnall=[31,32,33,34,44,45,52,59,72,81,82,83,84]
+DeltaOmegaParametersBoundariesx=[[[-1, 1], [-2645, -680.9999336824217], [-771.6725093375005, -571.6725093375005]],\
+                  [[-1, 1], [309.97784129346957, 1291], [100.1194520336694, 300.1194520336694]],\
+                  [[-1, 1], [-1891, -884.260978369682], [-627.1592472723664, -427.15924727236643]],\
+                  [[-1, 1], [-352, 269.9601625592079], [59.27874753699962, 259.2787475369996]],\
+                  [[-1, 1], [-319.28316722056434, 1571], [-268.07520696705285, -68.07520696705285]],\
+                  [[-1, 1], [-3914, 158.74778262212615], [-220.95131716320975, -20.95131716320975]],\
+                  [[-1, 1], [-3022, -199.07962062174886], [-192.67698328090054, 7.323016719099456]],\
+                  [[-1, 1], [-30.884961621023805, 3311], [-140.52654523130875, 59.47345476869125]],\
+                  [[-1, 1], [445.69464392854763, 2099], [-161.88937527571977, 38.110624724280214]],\
+                  [[-1, 1], [-393.11059457992536, -193.11059457992536], [-326.822989589179, -126.822989589179]],\
+                  [[-1, 1], [-96.54424808105091, 103.45575191894909], [-193.93362034233354, 6.066379657666474]],\
+                  [[-1, 1], [-491.4424446372856, -291.4424446372856], [-559.9291644855452, -359.9291644855453]],\
+                  [[-1, 1], [-48.16372121576645, 151.83627878423354], [-50.04867680792152, 149.9513231920785]]]
+
+PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
+    enumerate(reslall)],[x for y,x in enumerate(resnall)])
+poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+    results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+    intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate(DeltaOmegaParametersBoundariesx)],1,8000,100,900,1,2,0.005,0.1)
+costcoll=[i.cost for i in resultcoll]
+
+ParameterColl2=mainfuncts.resc2param(PropAxesColl,ParameterColl,resultcoll,2)
+ParameterColl2=[ParameterColl2[i] for i in np.argsort(costcoll)]
+costcoll=[costcoll[i] for i in np.argsort(costcoll)]
+dataname=cond[-1][-1]
+selset=0#2
+conditions=[0,[1,3,3,3,3]]
+setparameters2=[dataname,path2020,selnam,conditions,namresults] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
+import globalfitfunctions as hkfit2
+mustevaluate = 1
+
+if mustevaluate == 1:
+    ss=hkfit2.evaluaterdfit(path2020,savstatdir,PropAxesColl,setparameters2,1,ParameterColl2[selset],0)
+    hkio2.savss(savstatdir,ss,namresults)
+#%%evaluate
+import globalfitfunctions as hkfit2
+reslall=['A31']
+reslallx=['A31','A32','A33','A34','A44','A45','A52','A59','A72','A81','A82','A83','A84']
+
+resnall=[31]
+pickthese=[0]
+selnam=reslall
+resnallx=[31,32,33,34,44,45,52,59,72,81,82,83,84]
+
+DeltaOmegaParametersBoundariesx=[[[-1, 1], [-2645, -680.9999336824217], [-771.6725093375005, -571.6725093375005]],\
+                  [[-1, 1], [309.97784129346957, 1291], [100.1194520336694, 300.1194520336694]],\
+                  [[-1, 1], [-1891, -884.260978369682], [-627.1592472723664, -427.15924727236643]],\
+                  [[-1, 1], [-352, 269.9601625592079], [59.27874753699962, 259.2787475369996]],\
+                  [[-1, 1], [-319.28316722056434, 1571], [-268.07520696705285, -68.07520696705285]],\
+                  [[-1, 1], [-3914, 158.74778262212615], [-220.95131716320975, -20.95131716320975]],\
+                  [[-1, 1], [-3022, -199.07962062174886], [-192.67698328090054, 7.323016719099456]],\
+                  [[-1, 1], [-30.884961621023805, 3311], [-140.52654523130875, 59.47345476869125]],\
+                  [[-1, 1], [445.69464392854763, 2099], [-161.88937527571977, 38.110624724280214]],\
+                  [[-1, 1], [-393.11059457992536, -193.11059457992536], [-326.822989589179, -126.822989589179]],\
+                  [[-1, 1], [-96.54424808105091, 103.45575191894909], [-193.93362034233354, 6.066379657666474]],\
+                  [[-1, 1], [-491.4424446372856, -291.4424446372856], [-559.9291644855452, -359.9291644855453]],\
+                  [[-1, 1], [-48.16372121576645, 151.83627878423354], [-50.04867680792152, 149.9513231920785]]]
+
+print namresults
+
+    
+
+for nr in np.arange(len(reslallx)):
+    namresults='FINAL_indiv_proton_'+str(nr)+'_0_'
+
+    resnall=[resnallx[nr]]
+    reslall=[reslallx[nr]]
+    selnam=[reslallx[nr]]
+    PropAxesColl=mainfuncts.GeneratePropertyAxesCollection([x for y,x in \
+        enumerate(reslall)],[x for y,x in enumerate(resnall)])
+    DeltaOmegaParametersBoundaries=[DeltaOmegaParametersBoundariesx[nr]]
+    poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+        results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+        intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+    ParameterColl=mainfuncts.parammake(PropAxesColl,0,[x for y,x in enumerate(DeltaOmegaParametersBoundariesx)],1,8000,100,900,1,2,0.005,0.1)
+    costcoll=[i.cost for i in resultcoll]
+    
+    ParameterColl2=mainfuncts.resc2param(PropAxesColl,ParameterColl,resultcoll,2)
+    ParameterColl2=[ParameterColl2[i] for i in np.argsort(costcoll)]
+    costcoll=[costcoll[i] for i in np.argsort(costcoll)]
+    dataname=cond[-1][-1]
+    selset=0#2
+    conditions=[0,[1,3,3,3,3]]
+    setparameters2=[dataname,path2020,selnam,conditions,namresults] #,'A34' #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/
+    import globalfitfunctions as hkfit2
+    mustevaluate = 1
+    print ParameterColl2[selset], namresults, selnam, dataname, '!'
+    if mustevaluate == 1:
+        ss=hkfit2.evaluaterdfit(path2020,savstatdir,PropAxesColl,setparameters2,1,ParameterColl2[selset],0)
+        hkio2.savss(savstatdir,ss,namresults)
+
+#%%
+reslall=['A31','A32','A33','A34','A44','A45','A52','A59','A72','A81','A82','A83','A84']
+#reslall=['A84']
+spinsystems=[]
+for nr in np.arange(len(reslall)):
+    namresults='protonglobal4_'#'FINAL_indiv_proton_'+str(nr)+'_0_'  #'protonglobal1'#
+    ss=hkio2.loadss(savstatdir,namresults)
+    for ssx in ss:
+        if ssx.name[0] == reslallx[nr]:
+            spinsystems.append(ssx)
+    
+import plotRD as procall2
+selnam=['A31','A32','A33','A34']
+labelstring0=[[0,'600 MHz']]
+labelstring1=[[0,'800 MHz'],[1,'600 MHz']]
+labelstring2=[[0,'900 MHz'],[1,'800 MHz'],[2,'600 MHz']]
+#procall2.plotelements(spinsystems,selnam,0,[[2,2,2],[2,2,2],[2,2,2]],[[labelstring1,labelstring1,labelstring1],[labelstring0,labelstring0,labelstring0],[labelstring2,labelstring2,labelstring2]],[0,0,0,0,0,0,0,0,0],1,105)
+procall2.plotsingles(spinsystems,selnam,0,[[2],[2],[2],[2]],[labelstring1,labelstring0,labelstring2,labelstring2],[1,1,1,1],1,106,1)
+selnam=['A44','A45','A52']
+procall2.plotsingles(spinsystems,selnam,0,[[2],[2],[2]],[labelstring2,labelstring2,labelstring2],[1,1,1],1,107,1)
+selnam=['A59','A72','A81']
+procall2.plotsingles(spinsystems,selnam,0,[[2],[2],[2]],[labelstring2,labelstring2,labelstring2],[1,1,1],1,108,1)
+selnam=['A82','A83','A84']
+procall2.plotsingles(spinsystems,selnam,0,[[2],[2],[2]],[labelstring1,labelstring2,labelstring2],[1,1,1],1,109,1)
+
+#%%
+namresultslist=['FINAL_stage3_indiv_restrGmore_']
+for x in namresultslist:
+    z=[]
+    for y in np.arange(4):
+        namresults=x+str(y)+'_0_'
+        #print namresults
+        poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,\
+            results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr,\
+            intmin,ac,oc,rateconstpre,cond=hkio2.loadeverything(savstatdir,[namresults],0,decoupl=0)
+        z.append(np.round(resultcoll[0].cost,2))
+    print x, z
+
 
 #%%
 alldat=[]
@@ -140,11 +388,11 @@ for pn in np.arange(94):
     print np.average(pnl), np.std(pnl)
 import csv
 #with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_final16.csv','w') as f:
-with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage4.csv','w') as f:
+with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage2d.csv','w') as f:
     write = csv.writer(f)
     write.writerows(alldat)
 
-with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage4cost.csv','w') as f:
+with open('/home/hanskoss/scripts/relaxproc/savstat/fitresults_stage2dcost.csv','w') as f:
     write = csv.writer(f)
     write.writerows([costcoll])
 
@@ -262,8 +510,12 @@ procall2.plotelements(spinsystems,selnam,0,[[1,2,5],[1,2,5],[1,2,5]],[[labelstri
 import hkwatch
 hkwatch.parameterplotter2(PropAxesColl,ParameterColl2,[2],cost=costcoll2,lenresults=3,resnam=reslalmall,conc=['2.475','9.9'],figno=106) #32
 #%%
+namresults='protonglobal6_'
+PropAxesColl,ParameterColl2, costcoll, resultcoll,cond=readoutresults(reslall,resnall,pickthese,DeltaOmegaParametersBoundaries,savstatdir,namresults,conditions)
+
+
 pbrat_collect=[]
-for mm in np.arange(80):
+for mm in np.arange(3):
     pb_lo=[];pb_hi=[];pc_lo=[];pc_hi=[];k12_lo=[];k12_hi=[];k13_lo=[];k13_hi=[];k23_lo=[];k23_hi=[];pb_rat=[];pc_rat=[];k12r=[];k13r=[];
     for n in np.arange(mm):
         pb1=flatten(ParameterColl2[n].getparandbnds(PropAxesColl,'p',inclfilt=[['sites','name','B'],['conc','value','2.475']]))[0]

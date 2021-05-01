@@ -191,6 +191,7 @@ def plotall(spinsystems,ulist,v,titl,showtype,labelstring,legendon,ax,showxaxis)
         cpmgrange=[]
         for poslabel in labelstring:
             setpos=poslabel[0];label=poslabel[1]
+         #   print setpos, label
             if spinsystems[u].datasets[setpos].datatype in ['cpmg']:
                 
                 colorentry=colorlist[legendpos]
@@ -211,7 +212,11 @@ def plotall(spinsystems,ulist,v,titl,showtype,labelstring,legendon,ax,showxaxis)
                     if 'fit' in vars(spinsystems[u].datasets[setpos]):
                     #spinsystems[4].datasets[0].fit != []:
                         ax.errorbar(x,y,yerr=np.transpose(np.array(yerr)),marker='o',color=colorentry,label=legendentry,linestyle='None')   
-                        ax.plot(x,spinsystems[u].datasets[setpos].fit,color=colorentry,linestyle=linestyleentry)
+                        try:
+                            ax.plot(x,spinsystems[u].datasets[setpos].fit,color=colorentry,linestyle=linestyleentry)
+                        except:
+            #                print u, setpos,spinsystems[u].datasets[setpos].fit
+                            ax.plot(list(np.linspace(np.min(x),np.max(x),len(spinsystems[u].datasets[setpos].fit))),spinsystems[u].datasets[setpos].fit,color=colorentry,linestyle=linestyleentry)
                     else:
                         ax.errorbar(x,y,yerr=np.transpose(np.array(yerr)),marker='o',color=colorentry,label=legendentry,linestyle=linestyleentry)
         #print cpmgrange, 'cpmgrange'
@@ -482,4 +487,32 @@ def plotelements(spinsystems,selnam,v,showtypes,labelstrings,legendon,segmentswi
 
     
 
-
+def plotsingles(spinsystems,selnam,v,showtypes,labelstrings,legendon,segmentswitch,figno,colnums):
+    ulist=[]
+    #selnam=['A29']
+    for sn in selnam:
+        for u in np.arange(len(spinsystems)):
+            if spinsystems[u].name[0] in [sn]:
+                ulist.append(u)
+    fig=plt.figure(figno)
+    _=plt.clf()
+    plt.rcParams.update({'font.size': 12})
+    axs=[]
+   # print ulist
+    for lsnum, labelstring in enumerate(labelstrings):
+        showtype=showtypes[lsnum]
+        axs.append(fig.add_subplot(len(selnam),colnums,1+lsnum))
+        print ulist, showtype, labelstring, legendon, axs, lsnum
+        print ulist[lsnum], spinsystems[ulist[lsnum]].name
+        print showtype
+        print '!'
+     #   print showtype[lsnum]
+        #print labelstring[lsnum]
+        print legendon[lsnum]
+        print axs[lsnum]
+        if lsnum == len(labelstrings)-1 and segmentswitch == 0:
+            _=plotall(spinsystems,ulist[lsnum],v,spinsystems[ulist[lsnum]].name,showtype[-1],labelstring,legendon[lsnum],axs[lsnum],1)
+        else:
+            _=plotall(spinsystems,ulist[lsnum],v,spinsystems[ulist[lsnum]].name,showtype[-1],labelstring,legendon[lsnum],axs[lsnum],0)
+   #     _=plt.tight_layout()
+        _=plt.tight_layout()

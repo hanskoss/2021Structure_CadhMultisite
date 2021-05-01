@@ -16,6 +16,7 @@ import re
 import csv
 import os
 import os.path
+setprotoncpmg=1
 
 class spinsystem:
     def __init__(self):
@@ -582,6 +583,11 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                     nitrotag=np.int(row[0])
                 elif rnum == 5:
                     p4pulsenumber=np.int(row[0])
+#        if int(round(5*field,0)) == 6:   #to remove one specific extreme outlier
+#            trpos=list(trpos)
+#            trpos.append(20)
+#            trpos=np.array(trpos)
+            
         vc=[]
         vd=[]
         with open('vclist','rb') as csvfile:
@@ -592,15 +598,21 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
             filetext = csv.reader(csvfile, delimiter=' ')
             for row in filetext:
                 vd.append(row[0])
+            
         vc=np.array(vc).astype('int')
         vd=np.array(vd).astype('float')
+        if int(round(5*field,0)) == 6:
+            vc[19]=999999
         vcf=np.array([i[0] if j+1 not in trpos else 0 for j,i in enumerate(zip(vc,vd))])
         vdf=np.array([i[1] if j+1 not in trpos else 0 for j,i in enumerate(zip(vc,vd))])
         vcfs=np.sort(np.array(list(set(vcf))))
         vdfs=np.array([vdf[j] for j in [list(vcf).index(i) for i in vcfs]])
         vcfsno0=np.array([j if j > 0 else 0.00001 for j in vcfs])
         decaytimes=vcfsno0*(p4pulsenumber*p2/1000000+p4pulsenumber*2*vdfs)
+        #this is 1/(4tcp)
         fdata=(vcfs*2*p4pulsenumber)/(4*(decaytimes))
+        if int(round(5*field,0)) == 6:
+            fdata=fdata[:-1]
         label=[];intens=[];peakno=[]
         
         with open('CPMGpeaks.dat','rb') as csvfile:
@@ -620,9 +632,10 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                     peakno.append(row[2])
         intens0=np.array(intens).astype('int')
         peakno=np.array(peakno).astype('int')
-
         for nf,l in enumerate([k.name[0] for k in spinsystems]):
             intens=[j for i,j in enumerate(intens0) if label[i]==l]
+            if l == 'A84':
+                print l, intens
             spinsystems[nf].datasets.append(RDset(spinlistpath,filetype,dataposition,l,'cpmg',expcond['nucleus'],setselect))
             spinsystems[nf].datasets[-1].addexpcond(expcond)
             spinsystems[nf].datasets[-1].addshifts(setlabel,spinsystems,expcond['TR'],field,nf,len(spinsystems[nf].datasets),filetype)
@@ -635,20 +648,24 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                 #now collect CPMG data, going through each future data point of the CPMG curve.
                 for i in vcfs:  #leaves option open to create a supra-dataset vcfs from vclist and vdlist and then match whichever is in the actual data
                         #but careful. right now,  it assumes that intensity positions map to vcf positions!
+                    
                     if np.sum(i == vcf) > 1: #if more than one point
                         a=[intens[k] for k,j in enumerate(vcf) if j == i]
                         errget.append((a-np.average(a))**2)
                         errcnt.append(len(a))
                     a=[intens[k] for k,j in enumerate(vcf) if (j == i)] # and k not in trpos
+                    print a, i
                     if i == 0:
                         trint.append(np.average(a))
                         pntcntr=np.sum([1 for k,j in enumerate(vcf) if (j == i)])
                         
-                    else:
+                    elif i < 999999:
                         dataint.append(np.average(a))
                         pntcnt.append(np.sum([1 for k,j in enumerate(vcf) if (j == i)]))
+                print vcfs, trint, len(trint)
                 dataint=flatten(dataint)
                 trint=flatten(trint)[0]
+                #print spinsystems[nf].name[0], dataint, trint
                 err=np.sqrt(np.average(flatten(errget)))
                 #err=np.sqrt(np.average(flatten(errget)/np.sqrt(np.average(errcnt))))
                 j=[dataint/trint]
@@ -661,13 +678,16 @@ def adddata(spinsystems,spinlistpath,filetype,dataposition,setselect,setlabel,pa
                 decaytimex=decaytimes[1:]
                 #print j[0]
                 ydata=([-np.log(j[0][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
+                if l == 'A84':
+                    print 'ydat', ydata
                 if np.min([(j[0][i]-j[1][i]) for i in np.arange(len(j[0]))]) < 0:
 #                    print 'path1'
                     ydataerr=zip([-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
                 else:
 #                    print 'path2'#, j[0], j[1], j[0]-j[1], j[0]+j[1]
                     ydataerr=zip([-np.log(j[0][i]-j[1][i])*(1/decaytimex[i])+np.log(j[0][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))],[-np.log(j[0][i])*(1/decaytimex[i])+np.log(j[0][i]+j[1][i])*(1/decaytimex[i]) for i in np.arange(len(j[0]))])
-                if fdata[-1] > 2000:
+                
+                if fdata[-1] > 2000 and setprotoncpmg == 0:
            #         print fdata[1:-1]
                     spinsystems[nf].datasets[-1].addcpmgdata(setlabel,field,nitrotag,p2,fdata[1:-1],ydata[:-1],ydataerr[:-1],vcfs[1:-1],vdfs[1:-1],decaytimex) #[1,;]
                 else:
@@ -1211,7 +1231,7 @@ def passdatatofitn(spinsystems,selres,prepro):
     - eliminate poscoll
     - check naming of 'B1field' dict entry in expcnd
     """
-    setprotoncpmg=0
+    
     timedat=[]; y=[]; err=[]; datasetno=[]; resnaml=[]; equationtype=[]
     field=[]; field2=[]; field3=[]; tr=[]; expcnd=[]; poscoll=[]
     for rr,i in enumerate(spinsystems):

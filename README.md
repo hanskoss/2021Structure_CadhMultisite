@@ -7,10 +7,9 @@ These scripts are supposed to help understanding and reproducing the results we 
 List of files
 
 *** goglobalfit.py ***  
-Main file to perform the global fitting process. The file is divided in sections to allow stepwise
-execution of each stage.  
+Main file to perform the global fitting process.  
 *** hkimports2.py ***  
-This file imports all modules which are not included in this package. We intend to keep all those imports
+This file imports all modules which are not included in this package. We intend to keep most imports
 together so that it is easier to keep track of all required modules.  
 *** iofunctions.py ***  
 Functions related to import and export of data  
@@ -26,3 +25,5 @@ theoretical publications.
 
 *** exptl_data ***  
 experimental data. The path "path2020" to this folder has to be set in goglobalfit.py  
+
+*** some additional files for plotting are not fully commented yet and will be listed later.

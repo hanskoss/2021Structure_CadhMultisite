@@ -14,6 +14,15 @@ parammake (function)
 parallelmultifit4
 resc2param
 
+>>> Data model for global fitting using python scripts
+To enable flexibility in data and parameter choice we defined property 
+dictionary objects, in which any property relevant in the fitting process 
+can be stored. Specifically, fitted kinetic parameters can depend on the B0 
+static magnetic field, experimental temperature, site (in a kinetic scheme), 
+protein concentration, B1 irradiating magnetic field, experimental type, type 
+of TROSY experiment, residue/spin system in question. Each of the property 
+categories constitutes a dimension for the parameter object, which contains 
+all parameters for all properties.
 """
 
 from __future__ import division
@@ -23,7 +32,7 @@ from hkimports2 import np
 import itertools
 import multiprocessing
 
-setprotoncpmg=1
+setprotoncpmg=0
 
 class Mapping(dict):
     """this mapping enables us to define dictionary-like objects"""
@@ -465,11 +474,6 @@ def parammake(PropAxesColl,parbdslistb,parbdslista,k12min,k12max,k13min,k13max,k
         for p in ['p','k','dw','R20500','R2mult']:
             paramsx.generatemissing(p)
         paramsxx.append(paramsx)
-    
-    #'/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/'
-    #spinsystems,setlabels=prepro.launch('C:\\Users\\Hans\\Desktop\\TRANSFER\\2020Feb\\','test2.dat')
-    #spinsystems,setlabels=prepro.launch('/home/hanskoss/data/Cadherin/nmrCad/procandcoll/TSnewsort/2020Feb/','combo10.dat')
-    #poscoll,resnam,allsetcoll,resultcoll,relaxrat0,relaxrat,lookatratio,results,relaxrat1,relaxrat2,relaxrat_1,relaxrat_2,intdiffcorr, intcorr, intmin,ac,oc,rateconstpre,cond=hkio.loadeverything(['testxx'],0,decoupl=0)
     
     prxx=[]
     for paramsx in paramsxx:
